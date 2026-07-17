@@ -1,0 +1,115 @@
+# Self Hosting
+
+InteraOne is designed to be self-hosted, giving you complete control over your infrastructure, data, security, and AI providers.
+
+Whether you're deploying on a local machine for development or running a production cluster in the cloud, the architecture remains consistent and fully under your control.
+
+This section covers everything required to deploy, configure, maintain, and upgrade an InteraOne instance.
+
+---
+
+## Why Self-Host?
+
+Self-hosting provides several advantages:
+
+- Complete ownership of your data
+- Deploy on your preferred cloud or on-premises infrastructure
+- Bring your own AI providers and API keys
+- Customize and extend the platform
+- Control networking, storage, and security
+- Scale services independently
+
+---
+
+## Architecture Overview
+
+A typical InteraOne deployment consists of multiple services working together.
+
+```text
+                    Internet
+                        │
+                        ▼
+              Reverse Proxy (Caddy)
+                        │
+                        ▼
+                  API Gateway
+        ┌───────────────┼───────────────┐
+        ▼               ▼               ▼
+    Console         Agent Service     Worker
+        │                               │
+        └───────────────┬───────────────┘
+                        ▼
+              Shared Infrastructure
+        ┌──────────┬──────────┬─────────┐
+        ▼          ▼          ▼
+     MongoDB     Redis      Qdrant
+```
+
+Each service has a dedicated responsibility, making deployments modular and easier to scale.
+
+---
+
+## Deployment Options
+
+InteraOne can be deployed on a variety of environments.
+
+Supported deployment guides include:
+
+- Docker Compose
+- Amazon Web Services (AWS)
+- Google Cloud Platform (GCP)
+- DigitalOcean
+- Railway
+- Hostinger VPS
+
+Additional platforms can be used as long as the required services are available.
+
+---
+
+## What You'll Learn
+
+This section includes guides for:
+
+- Installing InteraOne
+- Configuring environment variables
+- Running services with Docker Compose
+- Configuring a reverse proxy
+- Deploying to cloud providers
+- Updating existing installations
+- Operating production deployments
+
+---
+
+## Recommended Reading Order
+
+If you're deploying InteraOne for the first time, follow these guides in order:
+
+1. Architecture
+2. Installation
+3. Environment Variables
+4. Docker Compose
+5. Reverse Proxy
+6. Cloud Deployment
+7. Updating and Upgrading
+
+---
+
+## Production Considerations
+
+Before deploying to production, make sure to:
+
+- Configure TLS/HTTPS.
+- Secure all secrets and API keys.
+- Use persistent storage for databases.
+- Schedule regular database backups.
+- Monitor service health and logs.
+- Keep InteraOne updated to the latest stable release.
+
+---
+
+## Next Steps
+
+Continue with the **Architecture** guide to understand how InteraOne services communicate before deploying your own instance.
+
+```text
+```

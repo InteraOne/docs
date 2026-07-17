@@ -1,0 +1,133 @@
+This guide walks you through setting up InteraOne for local development.
+
+By the end of this guide, you'll have all InteraOne services running on your machine.
+
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+| Requirement | Version |
+| --- | --- |
+| Git | Latest |
+| Docker | 24\+ |
+| Docker Compose | v2\+ |
+| Node.js | 22 LTS or later |
+| npm | Latest |
+
+---
+
+## Clone the Repository
+
+```bash
+git clone https://github.com/InteraOne/InteraOne.git
+cd InteraOne
+```
+
+---
+
+## Configure Environment Variables
+
+Each application includes an example environment file.
+
+Copy every `.env.example` to `.env`.
+
+Example:
+
+```bash
+cp apps/gateway/.env.example apps/gateway/.env
+cp apps/agent/.env.example apps/agent/.env
+cp apps/console/.env.example apps/console/.env
+cp apps/launcher/.env.example apps/launcher/.env
+cp apps/worker/.env.example apps/worker/.env
+```
+
+> Configure the required API keys and environment variables before starting the services.
+
+See **Self Hosting → Environment Variables** for a complete reference.
+
+---
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## Start Infrastructure
+
+Start the required infrastructure services.
+
+```bash
+docker compose up -d
+```
+
+This typically starts services such as:
+
+- MongoDB
+- Redis
+- Qdrant
+
+---
+
+## Start the Applications
+
+If your repository provides a single startup command:
+
+```bash
+make all
+```
+
+Otherwise, start each application individually according to your development workflow.
+
+---
+
+## Verify the Installation
+
+After all services have started:
+
+- Gateway is running.
+- Console is accessible.
+- Agent service is connected.
+- Worker is processing jobs.
+- Launcher is available.
+- Database connections are healthy.
+
+You can also verify the running containers:
+
+```bash
+docker compose ps
+```
+
+---
+
+## Project Structure
+
+```text
+apps/
+├── gateway/
+├── agent/
+├── console/
+├── launcher/
+└── worker/
+
+packages/
+└── ...
+
+docker/
+└── ...
+```
+
+---
+
+## Next Steps
+
+Continue with:
+
+- **Self Hosting** — Deployment and infrastructure.
+- **Architecture** — Learn how InteraOne services communicate.
+- **AI** — Understand the agent pipeline.
+- **API Reference** — Explore the REST API.
