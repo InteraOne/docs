@@ -33,7 +33,7 @@
     "background": "/images/ChatGPTImageJul17,2026,05_06_03PM.png"
   },
   "api": {
-    "openapi": "docs.json"
+    "openapi": "openapi.json"
   },
   "navigation": {
     "groups": []
