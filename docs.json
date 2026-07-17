@@ -6,7 +6,10 @@
     "primary": "#845C6C"
   },
   "navigation": {
-    "groups": []
+    "pages": [
+      "introduction",
+      "claude"
+    ]
   },
   "logo": {
     "light": "/images/222506196__4_-removebg-preview.png",
