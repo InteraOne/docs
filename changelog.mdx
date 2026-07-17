@@ -1,3 +1,58 @@
 ---
-title: "changelog"
+title: "Changelog"
+description: "Notable InteraOne product, platform, AI, channel, and documentation changes derived from repository releases."
+icon: "history"
 ---
+
+This page summarizes user- and operator-visible changes. Git tags and the repository history remain the authoritative source for exact commits.
+
+<Update label="July 15, 2026" description="Unreleased">
+  ### Support operations and channels
+
+  - Expanded dashboard, channel, and contact workflows.
+  - Added direct ticket-to-customer replies across channel strategies.
+  - Synchronized ticket status with conversations and improved lifecycle notifications.
+  - Excluded resolved and closed conversations from agent assignment queries.
+
+  ### AI and knowledge
+
+  - Centralized the internal AI API service and URL-ingestion locking.
+  - Added a 25-page ingestion limit and clearer worker naming.
+  - Modularized system prompt construction and shared agent utilities.
+
+  ### Platform
+
+  - Refactored Socket.IO into dedicated handlers, consumers, and services.
+  - Added DNS-based MX verification for the SES channel.
+  - Improved widget quick suggestions, welcome behavior, and conversation synchronization.
+</Update>
+
+<Update label="July 7, 2026" description="v1.0.0-beta.21">
+  - Added conversation status badges, relative timestamps, channel icons, and bulk contact tagging.
+  - Added an outcome overlay for resolved and closed conversations.
+  - Improved onboarding domain verification and context-aware dashboard breadcrumbs.
+  - Added agent analytics and an inbox notification badge for new conversations.
+  - Refined ticket/contact UI, loaders, widget startup, and platform email templates.
+</Update>
+
+<Update label="July 5, 2026" description="v1.0.0-beta.20">
+  - Improved widget streaming state and model tool-call limits.
+  - Added sliding-window conversation context with message IDs.
+  - Introduced the email provider adapter layer, ticket detail, and contact conflict management.
+  - Standardized domain types and refactored core conversation, routing, authentication, and analytics code.
+  - Added AI and API ticket sources and corrected console chart typing.
+</Update>
+
+<Update label="July 2, 2026" description="v1.0.0-beta.19">
+  - Consolidated operational event models into `SystemEvent`.
+  - Added structured logging and Dozzle-based container log viewing.
+  - Continued billing, dashboard, and infrastructure maintenance for the beta line.
+</Update>
+
+## Release policy
+
+Beta tags can include breaking changes to environment variables, queue payloads, storage, or public API behavior. Before upgrading, read [updates and upgrades](/self-hosting/updating-and-upgrading), pin every application image to the same reviewed release, and test with representative data.
+
+<Info>
+  When submitting a user-visible change, update this page, the affected guide, `.env.example` files, and `openapi.json` in the same pull request.
+</Info>

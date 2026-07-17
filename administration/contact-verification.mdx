@@ -1,3 +1,48 @@
 ---
-title: "contact-verification"
+title: "Contact identity verification"
+sidebarTitle: "Contact verification"
+description: "Understand email OTP verification for sensitive AI actions, conflict review, contact updates, and privacy safeguards."
+icon: "contact-round"
 ---
+
+The AI agent can verify that a visitor controls an email address before using account-related tools. This is separate from operator login OTP and is stored as short-lived conversation metadata.
+
+## OTP flow
+
+```mermaid
+sequenceDiagram
+  participant V as Visitor
+  participant A as Agent
+  participant G as Gateway
+  participant W as Email worker
+  A->>G: Request verification email
+  G->>G: Generate and hash 6-digit code
+  G->>W: Queue OTP email
+  W-->>V: Deliver code
+  V->>A: Send code
+  A->>G: Verify code with conversation context
+  G-->>A: Verified email or error
+  A->>A: Redact code and continue with identity context
+```
+
+Current controls include a 10-minute expiry, a 60-second resend cooldown, a maximum of five failed attempts, hashed code storage, and removal of the stored hash after success.
+
+<Warning>
+  Email control proves access to that mailbox at that moment. It does not prove legal identity, account ownership in another system, or authorization for irreversible actions.
+</Warning>
+
+## Contact conflicts
+
+AI updates can discover a different proposed value for an existing contact. Rather than silently overwriting trusted fields, the contact service creates conflict records. Agents can list pending conflicts and either accept or dismiss a proposed value.
+
+## Contact data operations
+
+Agents can update contacts, add/edit/delete notes, manage tags individually or in bulk, delete selected contacts, and review conflicts. AI tools can seek or upsert contact context through secret-protected internal routes.
+
+## Privacy safeguards
+
+- Collect only fields enabled by widget policy.
+- Never log OTP codes or raw provider credentials.
+- Limit notes to support-relevant information.
+- Use verified backend fields, not model summaries, for sensitive actions.
+- Apply tenant scope to contact email/session uniqueness and every lookup.

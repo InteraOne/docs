@@ -1,0 +1,77 @@
+---
+title: "API authentication"
+sidebarTitle: "Authentication"
+description: "Use InteraOne access and refresh JWTs, organization switching, widget sessions, and internal service authentication safely."
+icon: "shield-keyhole"
+---
+
+InteraOne uses separate authentication contexts for operators, widget visitors, and the internal AI service.
+
+## Operator JWTs
+
+```http
+Authorization: Bearer ACCESS_TOKEN
+```
+
+Access and refresh tokens are signed with different secrets. Their payload includes user ID, email, active organization ID, and token type. The gateway does not trust the role from the token: authentication reloads the accepted membership and derives the current organization role.
+
+## Signup and login
+
+<Tabs>
+  <Tab title="Signup">
+    <Steps>
+      <Step title="Initiate signup">
+        Send `name` and `email` to `/auth/initiate-signup`. The gateway rate-limits the request and sends an email-verification challenge.
+      </Step>
+      <Step title="Verify the code">
+        Send `email`, six-character `code`, and `type: email_verification` to `/auth/verify-otp` when the UI flow requires explicit verification.
+      </Step>
+      <Step title="Complete signup">
+        Send `email`, `organizationName`, a password of at least eight characters, and optional `domain` to `/auth/complete-signup`.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Login">
+    Send `email` and `password` to `/auth/login`. The response includes access/refresh tokens and organization context. When a user belongs to multiple tenants, use organization switching before tenant-scoped operations.
+  </Tab>
+  <Tab title="Invitation">
+    Verify `/memberships/verify-invite/:token`, then accept through `/memberships/accept-invite` with the values required by the invitation response/UI.
+  </Tab>
+</Tabs>
+
+## Select an organization
+
+```bash
+curl -X POST http://localhost:3002/api/v1/organizations/ORG_ID/switch \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+Switching verifies the membership and returns fresh tokens whose active organization ID matches the selection.
+
+## Refresh
+
+```bash
+curl -X POST http://localhost:3002/api/v1/auth/refresh-token \
+  -H "Content-Type: application/json" \
+  -d '{"refreshToken":"YOUR_REFRESH_TOKEN"}'
+```
+
+Store refresh tokens in a secure, non-script-readable location where your application architecture permits. Rotate tokens after refresh if the response provides a replacement and discard them on logout.
+
+## Other authentication contexts
+
+<AccordionGroup>
+  <Accordion title="Widget sessions" icon="message-circle">
+    The widget exchanges public configuration/visitor context for a short-lived token whose JWT type is `widget_session`. Widget middleware rejects operator tokens and scopes the resulting connection.
+  </Accordion>
+  <Accordion title="AI service" icon="bot">
+    Internal tool endpoints use `x-ai-tool-secret`. The header is only for trusted service-to-service calls on a private network.
+  </Accordion>
+  <Accordion title="Provider webhooks" icon="webhook">
+    Email, Twilio, Telegram, and billing callbacks use provider-specific verification and rate limits rather than operator JWTs.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  Replace the example JWT and internal secrets before deployment. Never expose access tokens in URLs; although authentication contains a query-token compatibility path, URLs are commonly logged by proxies and browsers.
+</Warning>

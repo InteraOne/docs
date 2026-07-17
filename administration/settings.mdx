@@ -1,3 +1,47 @@
 ---
-title: "settings"
+title: "Organization settings"
+sidebarTitle: "Settings"
+description: "Configure organization identity, branding, plan-aware features, and the danger zone with role-safe procedures."
+icon: "settings"
 ---
+
+Organization settings are split across general identity, branding, subscription/entitlements, and destructive operations. The current update schema accepts name, slug, logo URL, and white-label state.
+
+## General settings
+
+<ParamField body="name" type="string">
+  Human-readable organization name, 2–100 characters.
+</ParamField>
+<ParamField body="slug" type="string">
+  Unique lowercase slug, 2–50 characters, using only letters, numbers, and hyphens.
+</ParamField>
+<ParamField body="logoUrl" type="string">
+  Absolute logo URL or an empty string to clear it.
+</ParamField>
+<ParamField body="whiteLabelEnabled" type="boolean">
+  Requests white-label presentation; availability can depend on enterprise policy and plan.
+</ParamField>
+
+Admins can update general settings. Owners are required for organization deletion and billing-management routes.
+
+## Plan and entitlements
+
+InteraOne distinguishes the visible plan (`free`, `pro`, `proplus`) from subscription state and concrete entitlements. Gateway middleware checks feature availability and usage limits at the operation boundary; the console mirrors policy to explain upgrades and usage.
+
+<Info>
+  Do not use frontend environment mode as the authoritative entitlement source. The server's policy and current organization state decide access.
+</Info>
+
+## Danger zone
+
+Deleting an organization is owner-only and may remove memberships, support records, widget/channel configuration, knowledge metadata, billing state, and related assets. Before deletion:
+
+- Export records required by policy.
+- Snapshot MongoDB and object storage.
+- Disable external webhooks and widget links.
+- Confirm the owner understands recovery limitations.
+- Record the deletion for audit purposes without retaining prohibited content.
+
+<Warning>
+  Slug changes can affect URLs, integrations, and cached organization references. Coordinate the change and test sign-in, widget, channel, and API flows afterward.
+</Warning>

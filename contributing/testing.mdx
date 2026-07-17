@@ -1,3 +1,52 @@
 ---
-title: "testing"
+title: "Testing"
+description: "Run InteraOne's existing Vitest coverage, package checks, integration tests, and manual end-to-end scenarios."
+icon: "test-tube"
 ---
+
+The gateway currently has the formal Vitest suite, including auth, analytics, JWT, middleware, error handling, validation, and an integration test. Other packages primarily expose build/lint/type-check workflows and need targeted manual or new automated coverage.
+
+## Commands
+
+```bash
+# Gateway tests
+pnpm --filter @InteraOne/gateway test
+
+# Watch or coverage when supported by the package scripts
+pnpm --filter @InteraOne/gateway test:watch
+pnpm --filter @InteraOne/gateway test:coverage
+
+# Repository checks
+pnpm lint
+pnpm check-types
+pnpm build
+```
+
+Use the exact script names from the current package manifest if they differ.
+
+## Test layers
+
+<Tabs>
+  <Tab title="Unit">
+    Validation, pure policy, adapters with mocked providers, formatting, protocol guards, chunking, and error mapping.
+  </Tab>
+  <Tab title="Service/integration">
+    Tenant filters, role hierarchy, auth flows, model methods, queue producers/consumers, database indexes, and webhook signature validation.
+  </Tab>
+  <Tab title="End to end">
+    Signup, tenant switching, member invite, widget conversation, AI stream, human handoff, knowledge reindex, ticket flow, and every configured channel.
+  </Tab>
+</Tabs>
+
+## High-risk regression cases
+
+- A record ID from organization A cannot be read or changed from organization B.
+- A delayed AI job does not reply after human assignment or closure.
+- Duplicate webhook/job delivery does not create duplicate tickets/messages.
+- Widget messages from the wrong origin/window/version are ignored.
+- Changing embedding dimensions fails safely and does not corrupt existing vectors.
+- Owner-only and enterprise-only operations cannot be reached through the console or API by lower roles.
+
+<Tip>
+  A passing build is not a behavioral test. Add a regression test that fails before the fix whenever the package has a suitable test harness.
+</Tip>

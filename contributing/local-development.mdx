@@ -1,3 +1,61 @@
 ---
-title: "local-development"
+title: "Local development"
+description: "Prepare InteraOne's pnpm monorepo, run local infrastructure and applications, work on one package, and debug common services."
+icon: "laptop"
 ---
+
+import ServicePorts from "/snippets/service-ports.mdx";
+
+Use Node {{nodeVersion}}, {{packageManager}}, Docker/Compose, Git, and Make.
+
+<Steps>
+  <Step title="Install and configure">
+    ```bash
+    pnpm install
+    make copy-env
+    ```
+
+    Fill the generated app `.env` files, including one working LLM/embedding provider pair.
+  </Step>
+  <Step title="Start infrastructure">
+    ```bash
+    make docker-start
+    ```
+  </Step>
+  <Step title="Deploy the widget asset">
+    ```bash
+    make widget-deploy
+    ```
+  </Step>
+  <Step title="Start application processes">
+    ```bash
+    make dev
+    ```
+
+    The root dev task excludes launcher because its bundle is uploaded to MinIO.
+  </Step>
+</Steps>
+
+## Run a focused package
+
+```bash
+pnpm --filter @InteraOne/gateway dev
+pnpm --filter @InteraOne/console dev
+pnpm --filter @InteraOne/agent dev
+pnpm --filter @InteraOne/worker dev
+```
+
+Package names and available scripts are defined in each `package.json`; not every package implements every root Turbo task.
+
+## Local addresses
+
+<ServicePorts />
+
+## Debug loop
+
+- Gateway: call `/api/v1/health`, inspect request ID and domain logs.
+- Queue work: inspect gateway producer and agent/worker consumer logs together.
+- Email: open MailHog and check `platform-email` failures.
+- Storage: inspect MinIO objects and presigned URL hostname reachability.
+- Retrieval: use agent vector inspection scripts and confirm source status/counts.
+- Widget: check script, iframe, network, `postMessage` origins, and Socket.IO frames in browser tools.

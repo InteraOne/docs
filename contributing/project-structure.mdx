@@ -1,3 +1,45 @@
 ---
-title: "project-structure"
+title: "Project structure"
+description: "Navigate the InteraOne monorepo and place gateway, console, launcher, agent, worker, enterprise, Docker, and shared-config changes correctly."
+icon: "folder-tree"
 ---
+
+```text
+InteraOne/
+├── apps/
+│   ├── agent/       # AI workers, tools, providers, RAG and ingestion
+│   ├── console/     # Vite/React operator SPA
+│   ├── gateway/     # Express REST/Socket.IO API and domain modules
+│   ├── launcher/    # Embed loader and iframe widget
+│   └── worker/      # Platform email, analytics and licensed jobs
+├── packages/
+│   ├── eslint-config/
+│   └── typescript-config/
+├── docker/          # Dev/prod Compose, Caddy, environment template
+├── ee/              # Commercially licensed enterprise implementation
+├── scripts/         # Installation and repository operations
+├── .github/         # CI, release, issues and PR templates
+├── Makefile
+├── turbo.json
+└── pnpm-workspace.yaml
+```
+
+## Gateway module pattern
+
+Each domain under `apps/gateway/src/modules` generally owns routes, validation schema, controller, service, and types. Shared middleware, infrastructure clients, models, queues, and core response/logging utilities live under `src/shared`; Socket.IO has its own handler/consumer tree.
+
+## Console domain pattern
+
+`apps/console/src/domains/<feature>` groups API clients, components, hooks, pages, and types. Cross-domain UI, layouts, storage, query client, theme, and helpers live under `src/shared`. Central routing is in `src/router/index.tsx`.
+
+## Agent pattern
+
+Behavior is grouped into chat, assist, agents/tools, and ingestion modules. BullMQ consumers live in `workers`; Redis, providers, internal API, MinIO, Qdrant, and queue clients live in `infrastructure`.
+
+## Placement rule
+
+Put feature-specific behavior close to its domain. Promote code to `shared` only after it has a real cross-domain consumer and stable abstraction. Avoid imports that make the worker or agent depend on the gateway's runtime module graph.
+
+<Warning>
+  Code under `ee/` has a different license. Do not move enterprise implementation into open-source paths merely to simplify imports.
+</Warning>

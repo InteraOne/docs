@@ -1,3 +1,50 @@
 ---
-title: "reverse-proxy-caddy"
+title: "Caddy reverse proxy"
+sidebarTitle: "Caddy & TLS"
+description: "Configure InteraOne domains, automatic HTTPS, WebSocket proxying, CDN assets, log access, and single-domain routing."
+icon: "shield-check"
 ---
+
+Caddy is the public edge in the production Compose stack. It listens on TCP `80/443` and UDP `443`, obtains certificates for domain names, and proxies to services on the private Docker network.
+
+## Host layout
+
+<Tabs>
+  <Tab title="Separate hosts">
+    ```text
+    app.example.com   -> console
+    api.example.com   -> gateway + Socket.IO
+    cdn.example.com   -> MinIO/widget assets
+    logs.example.com  -> Dozzle (restricted)
+    ```
+  </Tab>
+  <Tab title="Single app/API host">
+    Set `WEB_HOST` equal to `API_HOST`. Caddy sends `/api/*` and `/socket.io/*` to the gateway and other paths to the console. Keep the CDN and log hosts separate.
+  </Tab>
+</Tabs>
+
+## DNS and firewall
+
+Create A/AAAA records for configured hosts, allow inbound 80/443, and keep application/data ports closed. Caddy needs outbound network access for certificate issuance.
+
+## WebSocket requirements
+
+Socket.IO requires HTTP upgrade support, suitable idle timeouts, and consistent forwarded scheme/host information. Caddy's `reverse_proxy` supports upgrades automatically, but an upstream cloud load balancer must also allow them.
+
+## Protect logs
+
+Dozzle mounts the Docker socket read-only, which still exposes sensitive operational visibility. Use its authentication plus a VPN, identity-aware proxy, mutual TLS, or strict IP allowlist. Do not rely on an obscure hostname.
+
+<Warning>
+  If Caddy is placed behind another proxy, configure trusted proxy headers deliberately. The gateway trusts the first proxy for client IP/rate limiting; an incorrect chain can spoof addresses or rate-limit the proxy itself.
+</Warning>
+
+## Verify
+
+```bash
+curl -I https://YOUR_WEB_HOST
+curl https://YOUR_API_HOST/api/v1/health
+curl -I https://YOUR_CDN_HOST/interaone-widget/v1/InteraOne.js
+```
+
+Then test a real widget Socket.IO session in browser developer tools.

@@ -1,3 +1,40 @@
 ---
-title: "coding-standards"
+title: "Coding standards"
+description: "Follow InteraOne's TypeScript, module, security, error handling, logging, UI, queue, and documentation conventions."
+icon: "code-xml"
 ---
+
+Match the surrounding package before introducing a new abstraction. InteraOne uses TypeScript with strict configuration, two-space formatting, package aliases, and domain-oriented modules.
+
+## General
+
+- Use `PascalCase` for components/classes/types and `camelCase` for functions/values.
+- Keep controllers thin; put business rules in services and validate requests at route boundaries.
+- Return the shared response envelope and let centralized middleware handle unexpected errors.
+- Include organization scope in user-facing data access and queue/cache identifiers.
+- Prefer existing provider/strategy interfaces over branching on provider names throughout the code.
+- Design background handlers for retries and graceful shutdown.
+
+## Security
+
+<Check>Validate input at every trust boundary, including internal service calls.</Check>
+<Check>Derive tenant/role context from authenticated state rather than caller-selected fields.</Check>
+<Check>Mask channel credentials and never log tokens, OTPs, secrets, or passwords.</Check>
+<Check>Verify provider webhook signatures before creating messages or side effects.</Check>
+<Check>Use specific `postMessage` origins and typed protocol guards in the widget.</Check>
+
+## Logging
+
+Use structured metadata with stable identifiers such as request, organization, conversation, message, job, provider, and queue. Log actionable failure categories and duration without dumping raw payloads that contain personal or secret data.
+
+## Console and widget
+
+- Keep server state in domain hooks/TanStack Query and network calls in API modules.
+- Enforce accessibility semantics and keyboard interaction.
+- Use existing shared UI primitives and theme variables.
+- Treat client role/entitlement checks as presentation only; the gateway is authoritative.
+- Preserve widget iframe isolation and protocol version compatibility.
+
+## Documentation
+
+Update `.env.example`, OpenAPI annotations/spec, architecture pages, and operator guides in the same change when a public route, variable, queue, provider, or workflow changes.

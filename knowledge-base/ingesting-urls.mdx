@@ -1,3 +1,43 @@
 ---
-title: "ingesting-urls"
+title: "Ingest URLs"
+description: "Index a single web page or crawl a site safely with depth, locking, sync frequency, and content-boundary guidance."
+icon: "globe"
 ---
+
+URL sources can fetch one page or crawl linked pages. The agent uses HTTP parsing for straightforward content and Playwright-based crawling where a browser is required.
+
+## Source settings
+
+<ParamField body="sourceUrl" type="string" required>
+  Absolute `http` or `https` URL to index.
+</ParamField>
+<ParamField body="fetchMode" type="string" required>
+  `single` for one page or `crawl` to follow eligible links.
+</ParamField>
+<ParamField body="crawlDepth" type="number">
+  Maximum link depth used by crawl mode. Start small and widen only when needed.
+</ParamField>
+<ParamField body="syncFrequency" type="string">
+  One of `manual`, `1hour`, `6hours`, or `daily`.
+</ParamField>
+
+<Steps>
+  <Step title="Choose a narrow entry URL">
+    Prefer the documentation or help-center root that contains authoritative customer-facing content.
+  </Step>
+  <Step title="Start with single-page mode">
+    Confirm extraction quality before enabling a crawl. Dynamic menus, cookie banners, and repeated navigation can add noise.
+  </Step>
+  <Step title="Set crawl boundaries">
+    Keep depth low, avoid account/logout/admin URLs, and ensure the crawler follows only intended origins and paths.
+  </Step>
+  <Step title="Index and review counts">
+    Watch the source state, word/chunk counts, error detail, and retrieval results. Pause or delete sources that import irrelevant data.
+  </Step>
+</Steps>
+
+The ingestion service uses a Redis lock for URL work so the same source is not crawled concurrently. The lock TTL defaults to one hour and can be configured with `URL_INGEST_LOCK_TTL_SECONDS`.
+
+<Warning>
+  A crawler can access far more content than a human expects. Do not target private applications, authenticated pages, or hosts that prohibit automated access. Protect against internal-network and metadata-service URLs when accepting user-supplied sources.
+</Warning>

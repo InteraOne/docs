@@ -1,3 +1,51 @@
 ---
-title: "docker-compose"
+title: "Docker Compose"
+description: "Operate InteraOne's development and production Compose stacks, services, volumes, health checks, and common commands."
+icon: "container"
 ---
+
+The repository contains two Compose files with different purposes.
+
+| File | Purpose |
+| --- | --- |
+| `docker/docker-compose.dev.yml` | Local infrastructure; application processes run through Turbo |
+| `docker/docker-compose.yml` | Production-style full stack using published application images and Caddy |
+
+## Production services
+
+| Service | Lifecycle |
+| --- | --- |
+| `caddy` | Long-running reverse proxy and TLS termination |
+| `console`, `gateway`, `agent`, `worker` | Long-running application containers |
+| `launcher-deploy` | One-shot widget build/deployment on stack startup |
+| `mongodb`, `redis`, `minio`, `qdrant` | Long-running stateful infrastructure |
+| `log-viewer` | Long-running Dozzle UI with Docker socket read access |
+
+## Commands
+
+```bash
+# Render the fully substituted configuration
+docker compose --env-file docker/.env -f docker/docker-compose.yml config
+
+# Start or reconcile the stack
+docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
+
+# Inspect health and recent logs
+docker compose --env-file docker/.env -f docker/docker-compose.yml ps
+docker compose --env-file docker/.env -f docker/docker-compose.yml logs --tail=200 gateway agent worker
+
+# Stop containers without deleting volumes
+docker compose --env-file docker/.env -f docker/docker-compose.yml down
+```
+
+<Warning>
+  Do not add `-v` to `docker compose down` in production unless you intentionally want to delete named data volumes and have a verified recovery plan.
+</Warning>
+
+## Image policy
+
+The checked-in stack references `latest` application images. For repeatable production releases, replace them with reviewed immutable tags or digests and record the complete set deployed together.
+
+## Health and dependency behavior
+
+Compose health checks gate some dependencies, but they do not prove the whole customer flow works. Add external checks for HTTPS, API health, Socket.IO, queue consumption, provider calls, database/storage access, and a synthetic widget message.

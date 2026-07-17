@@ -1,3 +1,42 @@
 ---
-title: "human-handoff"
+title: "Human handoff"
+description: "Understand automatic and explicit escalation, widget fallback policy, assignment behavior, and the operator takeover flow."
+icon: "handshake"
 ---
+
+Human handoff moves a conversation out of autonomous AI processing and into the shared inbox. It is a state transition, not simply a different AI response.
+
+## Handoff triggers
+
+- The model calls `escalate_to_human` because it cannot safely complete the request.
+- AI is disabled for the widget or organization and fallback is enabled.
+- Subscription policy prevents AI processing and fallback is enabled.
+- The selected provider fails and automatic fallback is allowed.
+- An operator routes or assigns the conversation manually.
+
+## Flow
+
+<Steps>
+  <Step title="Record the reason">
+    The agent calls the gateway with organization and conversation context plus a concise reason.
+  </Step>
+  <Step title="Change the conversation gate">
+    The gateway marks the conversation escalated/assigned or unassigned for the human queue and emits notifications/events.
+  </Step>
+  <Step title="Suppress future AI replies">
+    Delayed AI jobs re-check the conversation gate and stop when a human owns the conversation.
+  </Step>
+  <Step title="Operator takes over">
+    An agent opens the inbox, assigns or routes the conversation, uses templates or assist features, and updates status when complete.
+  </Step>
+</Steps>
+
+Widget configuration exposes `fallbackToAgent`, allowing an organization to disable escalation where no human team is available. When fallback is off, provider or subscription failures return only the configured safe behavior.
+
+<Info>
+  Agent-assist actions—suggest reply, generate note, and draft assist—can support a human without returning the conversation to autonomous mode.
+</Info>
+
+## Operational goals
+
+Track escalation rate, reason categories, time to first human response, unassigned backlog, reassignment count, resolution time, and cases where the user never received a response.

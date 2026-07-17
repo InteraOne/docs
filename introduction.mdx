@@ -1,112 +1,89 @@
 ---
-title: "introduction"
-description: "An overview of InteraOne and its architecture."
+title: "InteraOne documentation"
+sidebarTitle: "Introduction"
+description: "Learn what InteraOne is, what it includes, and how its agentic customer-support architecture fits together."
+icon: "house"
 ---
 
-InteraOne is an open-source AI customer support platform built for developers.
+InteraOne is an open-source, multi-tenant customer-support platform that combines a shared inbox, tickets, contacts, knowledge retrieval, an embeddable widget, messaging channels, and AI agents in one deployable system.
 
-It enables teams to build AI-powered customer support experiences with complete control over their infrastructure, data, and AI providers. Unlike closed SaaS platforms, InteraOne can be self-hosted, customized, and extended to fit your own requirements.
+<CardGroup cols={2}>
+  <Card title="Run it locally" icon="rocket" href="/quickstart">
+    Start the complete development stack with pnpm, Docker, and one Make target.
+  </Card>
+  <Card title="Self-host in production" icon="server" href="/self-hosting/overview">
+    Deploy the published services behind Caddy with persistent infrastructure.
+  </Card>
+  <Card title="Understand the architecture" icon="blocks" href="/architecture/overview">
+    Follow requests across the gateway, queues, AI agent, worker, and data stores.
+  </Card>
+  <Card title="Explore the API" icon="braces" href="/api-reference/overview">
+    Use the generated interactive reference for the gateway's REST endpoints.
+  </Card>
+</CardGroup>
 
-This documentation is intended for developers, contributors, and self-hosting teams.
+## What the platform includes
 
----
+<Columns cols={3}>
+  <Card title="AI assistance" icon="bot">
+    Provider routing, streaming replies, RAG, tools, agent assist, and human handoff.
+  </Card>
+  <Card title="Support operations" icon="inbox">
+    Conversations, assignment, contacts, tickets, templates, notifications, and analytics.
+  </Card>
+  <Card title="Customer channels" icon="messages-square">
+    Web widget, email, WhatsApp, Telegram, QR entry points, and direct links.
+  </Card>
+</Columns>
 
-## What is InteraOne?
+## System at a glance
 
-InteraOne provides the infrastructure required to build modern AI-powered customer support systems.
-
-Core capabilities include:
-
-- AI-powered conversations
-- Shared inbox for AI and human agents
-- Knowledge base with Retrieval-Augmented Generation (RAG)
-- Multiple communication channels
-- Human handoff
-- Ticket intelligence
-- Organization and team management
-- REST APIs
-- Self-hosted deployment
-
----
-
-## Architecture
-
-InteraOne is composed of multiple services that work together.
-
-```text
-                    Client Channels
-     (Widget • Email • WhatsApp • Telegram)
-
-                         │
-                         ▼
-                    API Gateway
-                         │
-        ┌────────────────┼────────────────┐
-        ▼                ▼                ▼
-     Agent           Console          Worker
-        │                                 │
-        ▼                                 ▼
-   AI Providers                 Background Jobs
-        │
-        ▼
-MongoDB • Redis • Qdrant
+```mermaid
+flowchart LR
+  Visitor[Customer channels] --> Gateway[Gateway API + Socket.IO]
+  Console[Operator console] --> Gateway
+  Gateway --> Mongo[(MongoDB)]
+  Gateway <--> Redis[(Redis)]
+  Gateway --> MinIO[(MinIO)]
+  Redis --> Agent[AI agent]
+  Agent --> Providers[LLM and embedding providers]
+  Agent <--> Qdrant[(Qdrant)]
+  Agent --> Gateway
+  Redis --> Worker[Platform worker]
+  Worker --> Mongo
 ```
 
-Each service has a single responsibility, allowing InteraOne to remain modular and scalable.
+The repository is a pnpm/Turborepo monorepo. Its five application packages have deliberately separate responsibilities:
 
-Learn more in the **Architecture** section.
-
----
-
-## Documentation Structure
-
-This documentation is organized into the following sections:
-
-| Section | Description |
+| Application | Responsibility |
 | --- | --- |
-| Quickstart | Get InteraOne running locally |
-| Self Hosting | Deployment and infrastructure |
-| Architecture | Internal services and request flow |
-| AI | Agent pipeline, memory, model providers |
-| Knowledge Base | File ingestion, crawling, vector search |
-| Channels | Widget and messaging integrations |
-| Administration | Organizations, memberships, permissions |
-| API | REST API reference |
-| Contributing | Local development and contribution guide |
+| `apps/gateway` | Express REST API, Socket.IO, authorization, domain modules, storage, and queue producers/consumers |
+| `apps/console` | Vite + React operator dashboard for conversations, tickets, contacts, knowledge, channels, widgets, and settings |
+| `apps/launcher` | Iframe-isolated browser widget loader and widget UI bundle |
+| `apps/agent` | AI reply, ingestion, analysis, assist, tool execution, model routing, and vector retrieval |
+| `apps/worker` | Email delivery, analytics persistence, and licensed subscription-expiry jobs |
 
----
+<Info>
+  The source repository contains an open-core `ee/` area. Features loaded from it are governed by `ee/LICENSE` and runtime entitlement checks; review that license before commercial use.
+</Info>
 
-## Open Source
+## Choose your path
 
-InteraOne is open source and welcomes community contributions.
+<Tabs>
+  <Tab title="Evaluate">
+    Follow the [quickstart](/quickstart), sign up through the local console, configure a model provider, add knowledge, and embed the widget on a test page.
+  </Tab>
+  <Tab title="Operate">
+    Start with [self-hosting architecture](/self-hosting/architecture), then configure environment variables, Caddy, persistent volumes, backups, and monitoring.
+  </Tab>
+  <Tab title="Contribute">
+    Read the [contributor overview](/contributing/overview), run the focused checks for the package you change, and open a scoped pull request.
+  </Tab>
+  <Tab title="Integrate">
+    Review [API authentication](/api-reference/authentication) and use the OpenAPI-generated endpoint pages and request playground.
+  </Tab>
+</Tabs>
 
-You can contribute by:
-
-- Reporting bugs
-- Improving documentation
-- Submitting pull requests
-- Adding integrations
-- Building new AI tools
-- Improving performance
-
----
-
-## Who is this documentation for?
-
-This documentation is intended for:
-
-- Backend developers
-- Frontend developers
-- DevOps engineers
-- Infrastructure engineers
-- AI engineers
-- Open source contributors
-- Teams self-hosting InteraOne
-
-It assumes basic familiarity with Docker, Git, REST APIs, and modern JavaScript/TypeScript development.
-
----
-
-## Next Steps
-
-Continue with the **Quickstart** guide to install and run InteraOne locally.
+<Tip>
+  Search understands page titles, headings, descriptions, and code. Press <kbd>⌘ K</kbd> or <kbd>Ctrl K</kbd> to find a feature quickly.
+</Tip>

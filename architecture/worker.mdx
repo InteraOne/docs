@@ -1,3 +1,34 @@
 ---
-title: "worker"
+title: "Platform worker"
+sidebarTitle: "Worker"
+description: "Understand the BullMQ workers for email, analytics, and licensed subscription maintenance."
+icon: "cpu"
 ---
+
+`apps/worker` handles non-AI background jobs that should not increase gateway response time. It connects to Redis for BullMQ and to MongoDB when a job needs persistence.
+
+## Workers
+
+| Queue | Behavior | Scaling |
+| --- | --- | --- |
+| `platform-email` | Sends through MailHog, AWS SES, or a disabled adapter | Increase replicas/concurrency within provider limits |
+| `platform-analytics` | Buffers events and bulk-inserts them into `SystemEvent` | Batches at 25 events or every 15 seconds |
+| `subscription-expiry` | Reconciles past-due and period-ended subscriptions | Enterprise-only; hourly scheduler, concurrency 1 |
+
+The subscription worker is not started when enterprise mode is disabled. This prevents open-source deployments from executing licensed billing behavior accidentally.
+
+## Shutdown and failure behavior
+
+The process closes all active workers on `SIGTERM` or `SIGINT`. Unhandled promise rejections and uncaught exceptions are logged and terminate the process so the container supervisor can restart it.
+
+<Info>
+  Email and analytics jobs are at-least-once work. Configure retries carefully and make downstream side effects idempotent where possible.
+</Info>
+
+## Configuration
+
+The worker needs Redis connectivity, MongoDB for analytics and subscription work, email-provider settings, AWS credentials when SES is selected, and `WORKER_CONCURRENCY`. See [environment variables](/self-hosting/environment-variables).
+
+## Operational signals
+
+Monitor queue waiting/failed counts, job latency, email provider errors, analytics buffer retry loops, MongoDB connection health, and container restarts. A continuously growing queue means either consumers are unhealthy or concurrency/provider capacity is too low.

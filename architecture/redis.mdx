@@ -1,3 +1,37 @@
 ---
-title: "redis"
+title: "Redis messaging and queues"
+sidebarTitle: "Redis"
+description: "See how Redis supports BullMQ, AI streams, cache entries, locks, Socket.IO coordination, and background processing."
+icon: "database-zap"
 ---
+
+Redis is InteraOne's coordination layer. It carries work between services, live AI output back to the gateway, short-lived conversation state, and distributed locks.
+
+## Workload map
+
+| Mechanism | Examples |
+| --- | --- |
+| BullMQ | AI processing, document ingestion, conversation analysis, agent assist, email, analytics, subscription expiry |
+| Streams/pub-sub | Ordered AI chunks, tool events, final responses, assist responses |
+| Cache | Conversation gates and short-lived state used by pipeline prechecks |
+| Locks | Duplicate URL-ingestion prevention |
+| Socket.IO coordination | Cross-instance real-time delivery when scaling the gateway |
+
+## Delivery considerations
+
+Redis-backed processing is asynchronous and retryable. Jobs may wait during an outage and may be delivered again after a worker failure. Use durable Redis persistence, monitor failed jobs, and keep handlers idempotent.
+
+<Warning>
+  Treat Redis as sensitive infrastructure. It contains tenant identifiers, message work, and internal events. Require authentication, use private networking, and do not expose port `6379` publicly.
+</Warning>
+
+## Capacity signals
+
+- Queue depth and oldest-job age
+- Worker throughput and failure rate
+- Redis memory, eviction policy, CPU, connections, and command latency
+- Stream consumer lag
+- Persistence health and restart recovery time
+- Lock TTLs and stale lock frequency
+
+For production, size Redis for both queued payloads and transient streams, not only cache keys. An eviction policy that removes active queue data can corrupt processing semantics.

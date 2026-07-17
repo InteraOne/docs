@@ -1,152 +1,317 @@
 {
+  "$schema": "https://mintlify.com/docs.json",
   "theme": "luma",
   "name": "InteraOne",
-  "description": "Open-source AI customer support platform for developers.",
+  "description": "Documentation for InteraOne, the open-source agentic customer support platform.",
   "colors": {
-    "primary": "#845C6C"
+    "primary": "#754C5A",
+    "light": "#A66F82",
+    "dark": "#5B3542"
   },
   "logo": {
     "light": "/images/222506196__4_-removebg-preview.png",
-    "dark": "/images/222506196(4).png"
+    "dark": "/images/222506196(4).png",
+    "href": "/introduction"
+  },
+  "favicon": "/images/222506196__4_-removebg-preview.png",
+  "icons": {
+    "library": "lucide"
+  },
+  "appearance": {
+    "default": "system",
+    "strict": false
   },
   "background": {
     "decoration": "windows"
   },
+  "fonts": {
+    "family": "Open Sans"
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": "system"
+  },
+  "thumbnails": {
+    "background": "/images/ChatGPTImageJul17,2026,05_06_03PM.png",
+    "appearance": "dark"
+  },
   "navbar": {
     "links": [
       {
-        "href": "https://app.interaone.app",
-        "label": "Dashboard"
+        "href": "https://interaone.app",
+        "label": "Website"
       },
       {
         "href": "https://github.com/InteraOne/InteraOne",
         "label": "GitHub"
       }
-    ]
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Open dashboard",
+      "href": "https://app.interaone.app"
+    }
   },
   "footer": {
     "socials": {
       "website": "https://interaone.app",
       "github": "https://github.com/InteraOne/InteraOne"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Quickstart",
+            "href": "/quickstart"
+          },
+          {
+            "label": "API reference",
+            "href": "/api-reference/overview"
+          },
+          {
+            "label": "Changelog",
+            "href": "/changelog"
+          }
+        ]
+      },
+      {
+        "header": "Community",
+        "items": [
+          {
+            "label": "GitHub",
+            "href": "https://github.com/InteraOne/InteraOne"
+          },
+          {
+            "label": "Report an issue",
+            "href": "https://github.com/InteraOne/InteraOne/issues"
+          },
+          {
+            "label": "Contributing",
+            "href": "/contributing/overview"
+          }
+        ]
+      }
+    ]
+  },
+  "banner": {
+    "content": "InteraOne is open source — star or contribute on [GitHub](https://github.com/InteraOne/InteraOne).",
+    "dismissible": true,
+    "type": "info"
+  },
+  "interaction": {
+    "drilldown": false
+  },
+  "contextual": {
+    "display": "toc",
+    "options": [
+      "copy",
+      "view",
+      "assistant",
+      "chatgpt",
+      "claude",
+      "mcp",
+      "cursor"
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/api/overview",
+      "destination": "/api-reference/overview",
+      "permanent": true
+    },
+    {
+      "source": "/api/authentication",
+      "destination": "/api-reference/authentication",
+      "permanent": true
+    }
+  ],
+  "search": {
+    "prompt": "Search InteraOne docs..."
+  },
+  "seo": {
+    "indexing": "all",
+    "metatags": {
+      "og:type": "website",
+      "og:site_name": "InteraOne Documentation"
     }
   },
-  "fonts": {
-    "family": "Open Sans"
+  "metadata": {
+    "timestamp": true
   },
-  "thumbnails": {
-    "background": "/images/ChatGPTImageJul17,2026,05_06_03PM.png"
+  "errors": {
+    "404": {
+      "redirect": false,
+      "title": "Page not found",
+      "description": "The page may have moved. Use search or return to the InteraOne introduction."
+    }
+  },
+  "variables": {
+    "repository": "https://github.com/InteraOne/InteraOne",
+    "nodeVersion": "20 or later",
+    "packageManager": "pnpm 9.15.0",
+    "localGateway": "http://localhost:3002/api/v1",
+    "localConsole": "http://localhost:3000"
   },
   "api": {
-    "openapi": "openapi.json"
+    "openapi": "openapi.json",
+    "playground": {
+      "display": "interactive",
+      "proxy": true,
+      "credentials": false
+    },
+    "params": {
+      "expanded": "closed"
+    },
+    "examples": {
+      "languages": [
+        "curl",
+        "javascript",
+        "python"
+      ],
+      "defaults": "required",
+      "prefill": true,
+      "autogenerate": true
+    }
   },
   "navigation": {
-    "groups": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "introduction",
-          "quickstart"
+        "tab": "Guides",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Getting started",
+            "icon": "rocket",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Self-hosting",
+            "icon": "server",
+            "pages": [
+              "self-hosting/overview",
+              "self-hosting/architecture",
+              "self-hosting/installation",
+              "self-hosting/docker-compose",
+              "self-hosting/environment-variables",
+              "self-hosting/reverse-proxy-caddy",
+              {
+                "group": "Cloud deployment",
+                "icon": "cloud",
+                "pages": [
+                  "self-hosting/deploying-to-aws",
+                  "self-hosting/deploying-to-gcp",
+                  "self-hosting/deploying-to-railway",
+                  "self-hosting/deploying-to-digitalocean",
+                  "self-hosting/deploying-to-hostinger"
+                ]
+              },
+              "self-hosting/updating-and-upgrading"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "icon": "blocks",
+            "pages": [
+              "architecture/overview",
+              "architecture/request-flow",
+              "architecture/gateway",
+              "architecture/console",
+              "architecture/launcher",
+              "architecture/agent",
+              "architecture/worker",
+              "architecture/database",
+              "architecture/redis",
+              "architecture/qdrant"
+            ]
+          },
+          {
+            "group": "AI system",
+            "icon": "bot",
+            "pages": [
+              "ai/agent-pipeline",
+              "ai/model-providers",
+              "ai/memory",
+              "ai/tool-calling",
+              "ai/ticket-intelligence",
+              "ai/human-handoff",
+              "ai/observability"
+            ]
+          },
+          {
+            "group": "Knowledge base",
+            "icon": "database-zap",
+            "pages": [
+              "knowledge-base/overview",
+              "knowledge-base/ingesting-files",
+              "knowledge-base/ingesting-urls",
+              "knowledge-base/ingesting-faqs",
+              "knowledge-base/vector-search"
+            ]
+          },
+          {
+            "group": "Channels",
+            "icon": "messages-square",
+            "pages": [
+              "channels/overview",
+              "channels/web-widget",
+              "channels/email",
+              "channels/whatsapp",
+              "channels/telegram",
+              "channels/qr-and-direct-links"
+            ]
+          },
+          {
+            "group": "Administration",
+            "icon": "settings",
+            "pages": [
+              "administration/organizations",
+              "administration/memberships",
+              "administration/settings",
+              "administration/contact-verification"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "icon": "git-pull-request",
+            "pages": [
+              "contributing/overview",
+              "contributing/local-development",
+              "contributing/project-structure",
+              "contributing/coding-standards",
+              "contributing/testing",
+              "contributing/pull-requests"
+            ]
+          }
         ]
       },
       {
-        "group": "Self Hosting",
-        "pages": [
-          "self-hosting/overview",
-          "self-hosting/architecture",
-          "self-hosting/installation",
-          "self-hosting/docker-compose",
-          "self-hosting/environment-variables",
-          "self-hosting/reverse-proxy-caddy",
-          "self-hosting/deploying-to-aws",
-          "self-hosting/deploying-to-gcp",
-          "self-hosting/deploying-to-railway",
-          "self-hosting/deploying-to-digitalocean",
-          "self-hosting/deploying-to-hostinger",
-          "self-hosting/updating-and-upgrading"
+        "tab": "API reference",
+        "icon": "braces",
+        "groups": [
+          {
+            "group": "Start here",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "REST endpoints",
+            "openapi": "openapi.json"
+          }
         ]
       },
       {
-        "group": "Architecture",
-        "pages": [
-          "architecture/overview",
-          "architecture/gateway",
-          "architecture/console",
-          "architecture/launcher",
-          "architecture/agent",
-          "architecture/worker",
-          "architecture/database",
-          "architecture/redis",
-          "architecture/qdrant",
-          "architecture/request-flow"
-        ]
-      },
-      {
-        "group": "AI",
-        "pages": [
-          "ai/agent-pipeline",
-          "ai/model-providers",
-          "ai/memory",
-          "ai/tool-calling",
-          "ai/ticket-intelligence",
-          "ai/human-handoff",
-          "ai/observability"
-        ]
-      },
-      {
-        "group": "Knowledge Base",
-        "pages": [
-          "knowledge-base/overview",
-          "knowledge-base/ingesting-files",
-          "knowledge-base/ingesting-urls",
-          "knowledge-base/ingesting-faqs",
-          "knowledge-base/vector-search"
-        ]
-      },
-      {
-        "group": "Channels",
-        "pages": [
-          "channels/overview",
-          "channels/web-widget",
-          "channels/email",
-          "channels/whatsapp",
-          "channels/telegram",
-          "channels/qr-and-direct-links"
-        ]
-      },
-      {
-        "group": "Administration",
-        "pages": [
-          "administration/organizations",
-          "administration/memberships",
-          "administration/settings",
-          "administration/contact-verification"
-        ]
-      },
-      {
-        "group": "API Reference",
-        "pages": [
-          "api/overview",
-          "api/authentication"
-        ]
-      },
-      {
-        "group": "Contributing",
-        "pages": [
-          "contributing/overview",
-          "contributing/local-development",
-          "contributing/project-structure",
-          "contributing/coding-standards",
-          "contributing/testing",
-          "contributing/pull-requests"
-        ]
-      },
-      {
-        "group": "Changelog",
+        "tab": "Changelog",
+        "icon": "history",
         "pages": [
           "changelog"
         ]
       }
     ]
-  },
-  "favicon": "/images/favicon.ico"
+  }
 }

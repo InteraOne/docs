@@ -1,3 +1,47 @@
 ---
-title: "qr-and-direct-links"
+title: "QR codes and direct links"
+sidebarTitle: "QR & direct links"
+description: "Create offline-to-online support entry points with hosted widget links, source attribution, QR export, and safe public-key handling."
+icon: "qr-code"
 ---
+
+Every configured widget can be opened on a hosted landing route at `/c/:publicKey`. The same route supports QR and ordinary link attribution through the `source` query parameter.
+
+## Link formats
+
+```text
+https://app.example.com/c/WIDGET_PUBLIC_KEY?source=qr
+https://app.example.com/c/WIDGET_PUBLIC_KEY?source=link
+```
+
+The owner-only QR generator builds the `source=qr` URL, renders a branded QR code, and can export a PNG. The landing page loads the regular widget bundle in fullscreen, auto-open mode.
+
+## Runtime behavior
+
+<Steps>
+  <Step title="Open the hosted route">
+    The landing page normalizes `source` to either `qr` or `link`.
+  </Step>
+  <Step title="Record a scan">
+    QR visits call `/api/v1/widget/qr-scan` with the public key for analytics.
+  </Step>
+  <Step title="Load the widget">
+    The page injects the widget script with public key, fullscreen, auto-open, and source data attributes.
+  </Step>
+  <Step title="Attribute the conversation">
+    Messages use the same widget configuration while retaining QR/link source context.
+  </Step>
+</Steps>
+
+## Deployment ideas
+
+- Product packaging and receipts
+- Store counters and venue signage
+- Equipment labels and service manuals
+- Email signatures and campaign links
+
+<Info>
+  A widget public key identifies public configuration; it is designed to appear in HTML and URLs. It must never authorize administrative operations. Protect all management routes with operator authentication and tenant checks.
+</Info>
+
+Regenerate printed material only when the public key or hosted console origin changes. Test QR codes with multiple camera apps and confirm the destination uses HTTPS.

@@ -1,3 +1,37 @@
 ---
-title: "pull-requests"
+title: "Pull requests"
+description: "Prepare a reviewable InteraOne pull request with clear scope, evidence, migration notes, security impact, and documentation."
+icon: "git-pull-request-arrow"
 ---
+
+A strong pull request lets a reviewer understand the problem, evaluate the design, reproduce the result, and roll it back without reconstructing the author's context.
+
+## Before opening
+
+- Rebase or merge the target branch according to repository policy.
+- Remove unrelated formatting, generated output, secrets, and debug logs.
+- Run focused tests plus relevant lint/type/build checks.
+- Review your own diff for tenant scope, authorization, logging, retries, and compatibility.
+- Update docs, environment templates, API spec, screenshots, and example configuration.
+
+## Description checklist
+
+<Check>Problem and user-visible outcome</Check>
+<Check>Implementation summary and important alternatives</Check>
+<Check>Exact automated and manual verification performed</Check>
+<Check>Screenshots/video for console or widget changes</Check>
+<Check>API requests/responses for contract changes</Check>
+<Check>New variables, indexes, queues, volumes, migrations, or provider permissions</Check>
+<Check>Security, privacy, license, rollout, and rollback impact</Check>
+
+## Commit discipline
+
+Keep commits intentional and reviewable. A commit should compile or explain why it is an intermediate mechanical step. Avoid mixing mass renames or formatting with behavioral changes.
+
+## Review-sensitive changes
+
+Call attention to authentication, cross-tenant queries, webhook validation, public widget protocol, tool side effects, billing/enterprise policy, data deletion, secrets, and queue payload changes. These areas deserve explicit negative tests and deployment notes.
+
+<Info>
+  Draft pull requests are useful for early design feedback, but mark them ready only when the description, verification, and documentation are complete.
+</Info>
