@@ -1,3 +1,48 @@
 ---
-title: "observability"
+title: "AI observability"
+description: "Track provider latency, token use, estimated cost, tool steps, errors, queue health, and tenant-safe retention."
+icon: "chart-no-axes-combined"
 ---
+
+InteraOne records AI calls and execution events without making the gateway wait for every analytics write. Agent-side trackers capture latency, tokens, estimated cost, provider/model metadata, success, and errors; an observability worker batches events for persistence.
+
+## Recorded signals
+
+<ResponseField name="latencyMs" type="number">
+  End-to-end or provider-call duration, depending on the event type.
+</ResponseField>
+<ResponseField name="tokens" type="object">
+  Prompt, completion, and total token counts when the provider returns usage.
+</ResponseField>
+<ResponseField name="estimatedCostUsd" type="number">
+  Estimated provider cost based on the configured model registry; treat this as an estimate.
+</ResponseField>
+<ResponseField name="success" type="boolean" required>
+  Whether the operation completed successfully.
+</ResponseField>
+<ResponseField name="metadata" type="object">
+  Provider, model, tool, channel, run, and other structured diagnostic context.
+</ResponseField>
+
+System events are indexed by organization, category, event type, time, provider, and model. The collection has a 90-day TTL index in the current model.
+
+## Three levels of diagnosis
+
+| Level | Use |
+| --- | --- |
+| Request logs | HTTP status, route, duration, request ID, actor and tenant context |
+| Agent runs | Ordered tool steps, duration, usage, status, and error for one message |
+| Aggregate events | Provider/model latency, success rate, estimated cost, channel and trend analysis |
+
+## Recommended alerts
+
+- AI queue age or failed jobs exceed normal bounds.
+- Provider success rate or time to first token degrades.
+- Tool error rate spikes by tool name.
+- Fallback and human-escalation rate changes unexpectedly.
+- Qdrant or embedding calls fail or return no context unusually often.
+- Observability/analytics workers repeatedly fail to flush.
+
+<Warning>
+  Do not put raw secrets, OTPs, authorization headers, or unnecessary message content in telemetry. Logs and events are operational data and need the same tenant access controls and retention discipline as application records.
+</Warning>

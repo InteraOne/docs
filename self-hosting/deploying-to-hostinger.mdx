@@ -1,3 +1,36 @@
 ---
-title: "deploying-to-hostinger"
+title: "Deploy to Hostinger"
+sidebarTitle: "Hostinger"
+description: "Deploy InteraOne on a Hostinger Docker VPS using SSH or Docker Manager, domains, firewall rules, volumes, and backups."
+icon: "server"
 ---
+
+Hostinger offers an Ubuntu 24.04 Docker VPS template with Docker Engine and Compose installed, plus a Docker Manager that accepts Compose projects. See Hostinger's [Docker VPS template guide](https://www.hostinger.com/support/8306612-how-to-use-the-docker-vps-template-at-hostinger/).
+
+<Tabs>
+  <Tab title="SSH deployment">
+    Use the standard [production installation](/self-hosting/installation). This gives direct control over `docker/.env`, Caddy, volumes, logs, and backup scripts.
+  </Tab>
+  <Tab title="Docker Manager">
+    Hostinger Docker Manager can deploy Compose manually or from a repository URL. Confirm that environment files, named volumes, one-shot launcher deployment, host ports, and Caddy routing translate exactly before relying on it.
+  </Tab>
+</Tabs>
+
+<Steps>
+  <Step title="Create the Docker VPS">
+    Use SSH keys, update the host, and verify `docker version` plus `docker compose version`.
+  </Step>
+  <Step title="Configure firewall and DNS">
+    Publish only `80`/`443`, restrict SSH, and point the web/API/CDN/log hostnames to the VPS.
+  </Step>
+  <Step title="Deploy the stack">
+    Clone a fixed release or enter the reviewed Compose project, set production variables, and start all services.
+  </Step>
+  <Step title="Verify persistence and recovery">
+    Confirm named volumes survive container recreation and that Hostinger backups plus application-level exports can restore the system.
+  </Step>
+</Steps>
+
+<Warning>
+  Reinstalling or changing a VPS operating-system template is destructive. Download/verify backups before any rebuild operation.
+</Warning>

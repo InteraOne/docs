@@ -1,3 +1,50 @@
 ---
-title: "organizations"
+title: "Organizations and tenancy"
+sidebarTitle: "Organizations"
+description: "Understand InteraOne's tenant boundary, organization switching, plans, settings, deletion, and safe data isolation."
+icon: "building-2"
 ---
+
+An organization is the top-level tenant. Memberships connect global user identities to organizations, and each active session selects one organization and role.
+
+## Organization fields
+
+<ResponseField name="name" type="string" required>
+  Display name, 2–100 characters through the API validator.
+</ResponseField>
+<ResponseField name="slug" type="string" required>
+  Unique lowercase identifier containing letters, numbers, and hyphens.
+</ResponseField>
+<ResponseField name="plan" type="free | pro | proplus" required>
+  Current entitlement tier.
+</ResponseField>
+<ResponseField name="logoUrl" type="string">
+  Organization logo used by supported console, widget, and QR surfaces.
+</ResponseField>
+<ResponseField name="isActive" type="boolean" required>
+  Whether the tenant is active.
+</ResponseField>
+
+Billing state includes subscription status, trial state, cancel-at-period-end, and a billing email. White-label behavior is controlled separately and may be entitlement-gated.
+
+## Switching organizations
+
+<Steps>
+  <Step title="List memberships">
+    After authentication, the console loads the organizations the user belongs to.
+  </Step>
+  <Step title="Select an organization">
+    Calling `/organizations/:orgId/switch` verifies membership and issues fresh tokens with the selected organization and role context.
+  </Step>
+  <Step title="Resolve every protected request">
+    Gateway middleware loads the active organization before role, usage, or entitlement checks.
+  </Step>
+</Steps>
+
+<Warning>
+  An organization ID supplied in a URL or request body is not sufficient authorization. Protected services must compare it with the organization resolved from the authenticated membership.
+</Warning>
+
+## Deletion
+
+Only an owner can delete an organization. Deletion affects child assets and is not an ordinary settings change. Export required data, confirm backups, revoke public widget/channel entry points, and communicate the retention outcome before proceeding.

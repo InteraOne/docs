@@ -1,3 +1,61 @@
 ---
-title: "environment-variables"
+title: "Environment variables"
+description: "Reference InteraOne configuration for the gateway, console, launcher, agent, worker, and production Docker stack."
+icon: "list-tree"
 ---
+
+import SecurityNote from "/snippets/security-note.mdx";
+
+Each application has an `.env.example`; production Compose also uses `docker/.env` for substitution. Values in frontend/launcher builds are public once shipped, so never place secrets in `VITE_*` or browser bundle variables.
+
+## Gateway
+
+| Group | Variables |
+| --- | --- |
+| Runtime | `NODE_ENV`, `CLIENT_URL`, `PUBLIC_API_URL`, `SERVICE_NAME`, `LOG_LEVEL` |
+| MongoDB | `MONGODB_URI` |
+| Redis | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` |
+| JWT | `JWT_SECRET`, `JWT_EXPIRES_IN`, `JWT_REFRESH_SECRET`, `JWT_REFRESH_EXPIRES_IN` |
+| Email/AWS | `EMAIL_PROVIDER`, `EMAIL_FROM_NAME`, `EMAIL_FROM_EMAIL`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
+| MinIO | `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_USE_SSL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET_NAME`, `MINIO_PUBLIC_URL` |
+| Security | `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS`, `AI_TOOL_SECRET`, `ALLOWED_DOMAINS` |
+
+`PUBLIC_API_URL` must be the external origin providers use for Telegram and other callbacks. `CLIENT_URL` is the public console origin. Use different random values for both JWT secrets and for `AI_TOOL_SECRET`.
+
+## Agent
+
+| Group | Variables |
+| --- | --- |
+| Connectivity | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `API_URL`, `AI_TOOL_SECRET` |
+| Storage/vector | `MINIO_*`, `QDRANT_URL`, optional `QDRANT_API_KEY` |
+| Provider selection | `LLM_PROVIDER`, `EMBEDDING_PROVIDER` |
+| Provider credentials/models | `HF_*`, `AWS_*`, `BEDROCK_*`, `OLLAMA_*`, `OPENAI_*` |
+| Retrieval/context | `RAG_TOP_K`, `CHAT_HISTORY_LIMIT` |
+| Concurrency/health | `WORKER_CONCURRENCY`, `INGESTION_CONCURRENCY`, `AI_HEALTH_PORT` |
+| Advanced ingestion | `INGEST_BATCH_SIZE`, `INGEST_FLUSH_MS`, `INGEST_EMBED_CONCURRENCY`, `INGEST_EMBED_RETRIES`, `INGEST_RETRY_BASE_MS`, `URL_INGEST_LOCK_TTL_SECONDS` |
+| Observability/streaming | `AI_OBS_BATCH_SIZE`, `AI_OBS_FLUSH_MS`, `AI_STREAM_SEQ_TTL_SECONDS` |
+
+See [model providers](/ai/model-providers) before changing provider or embedding dimension.
+
+## Console and launcher
+
+| Application | Variables |
+| --- | --- |
+| Console | `VITE_API_URL`, `VITE_SOCKET_URL`, `VITE_WIDGET_URL`, `VITE_PUBLIC_ENV`, `VITE_INTERAONE_MODE` |
+| Launcher | `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_USE_SSL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `API_URL_PRODUCTION`, `CDN_URL_PRODUCTION` |
+
+Launcher MinIO credentials belong only in its deployment process, never in the generated browser asset.
+
+## Worker
+
+The worker needs `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `MONGODB_URI`, `EMAIL_PROVIDER`, sender values, MailHog host/port when selected, AWS credentials/region for SES, and `WORKER_CONCURRENCY`.
+
+## Docker substitution
+
+`docker/.env` supplies MongoDB, Redis, and MinIO credentials; `API_HOST`, `WEB_HOST`, `CDN_HOST`, and `LOG_HOST`; `MINIO_PUBLIC_URL`; `API_URL_PRODUCTION`; and `LOG_VIEWER_PORT`.
+
+<SecurityNote />
+
+<Tip>
+  Run `docker compose --env-file docker/.env -f docker/docker-compose.yml config` before deployment. It catches missing substitutions and shows the effective configuration—review output carefully because it can contain secrets.
+</Tip>

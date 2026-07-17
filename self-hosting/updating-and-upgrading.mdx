@@ -1,3 +1,45 @@
 ---
-title: "updating-and-upgrading"
+title: "Update and upgrade"
+sidebarTitle: "Updates & upgrades"
+description: "Upgrade InteraOne safely with release review, coordinated backups, immutable images, health checks, and rollback planning."
+icon: "refresh-cw"
 ---
+
+Treat InteraOne as a coordinated application release: gateway, console, launcher, agent, and worker can share queue payloads, API contracts, database fields, and environment expectations.
+
+<Steps>
+  <Step title="Read and pin the release">
+    Review the changelog and code changes, especially schema/index, queue, environment, OpenAPI, and deployment changes. Record the target tag or image digest for every service.
+  </Step>
+  <Step title="Back up coordinated state">
+    Capture MongoDB, MinIO, Redis where recovery requires it, Qdrant or a plan to reindex, Caddy state, and the exact environment/configuration. Verify the backup before continuing.
+  </Step>
+  <Step title="Test in staging">
+    Restore representative data, deploy the release, run build/API/widget/channel/AI/ingestion tests, and observe queue compatibility.
+  </Step>
+  <Step title="Pull and reconcile">
+    ```bash
+    docker compose --env-file docker/.env -f docker/docker-compose.yml pull
+    docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
+    ```
+  </Step>
+  <Step title="Verify and observe">
+    Check container health, gateway health, login, tenant switching, widget assets, Socket.IO, one AI response, one background email, and queue failures. Monitor beyond the immediate deploy window.
+  </Step>
+</Steps>
+
+## Rollback
+
+A safe rollback requires previous immutable image tags and data that remains compatible. If a release performed an irreversible migration or vector rebuild, restoring old containers alone may not work. Document the data rollback path before deployment.
+
+<Warning>
+  Avoid `latest` in production. A restart can otherwise pull a different build from the one you tested, making incidents and rollback much harder to reproduce.
+</Warning>
+
+## After upgrading
+
+- Rebuild/redeploy launcher assets when launcher or public URL settings change.
+- Reindex knowledge after an embedding model/dimension change.
+- Rotate secrets if the release addresses credential exposure.
+- Update monitoring and runbooks for new queues, routes, or health checks.
+- Update this documentation and `openapi.json` with the same release.

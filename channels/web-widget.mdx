@@ -1,3 +1,65 @@
 ---
-title: "web-widget"
+title: "Web widget"
+description: "Configure, secure, install, and troubleshoot the InteraOne iframe-based website chat widget."
+icon: "message-circle"
 ---
+
+The widget is configured in **Dashboard → Widget** and installed with one script tag. The console generates the exact CDN URL and public key for your deployment.
+
+## Install
+
+```html
+<script
+  src="https://cdn.example.com/interaone-widget/v1/InteraOne.js"
+  data-InteraOne-public-key="YOUR_WIDGET_KEY"
+  async>
+</script>
+```
+
+Place the snippet before `</body>` or through your tag manager after consent rules permit support chat. The loader infers the CDN origin from its own `src` and fetches public configuration from the gateway.
+
+## Configuration areas
+
+<Tabs>
+  <Tab title="Appearance">
+    Set light/dark theme, welcome message, visual pattern, logo, brand treatment, and launcher placement.
+  </Tab>
+  <Tab title="Behavior">
+    Show/hide the widget, select page rules, auto-open on desktop, and enable mobile or desktop independently.
+  </Tab>
+  <Tab title="AI">
+    Enable AI replies and choose whether failures or low-confidence cases may fall back to a person.
+  </Tab>
+  <Tab title="Conversation">
+    Choose whether the pre-chat form collects name, email, and phone.
+  </Tab>
+  <Tab title="Advanced">
+    Control host-page DOM access and verify the embedding domain.
+  </Tab>
+</Tabs>
+
+## Domain and page security
+
+Verify the domain where the widget runs, configure `ALLOWED_DOMAINS`, and keep the public API/CDN origins consistent. Page rules accept absolute HTTP(S) URLs or paths beginning with `/`, with up to 50 rules in the current validator.
+
+<Warning>
+  **Host DOM access** lets the loader read semantic page text and pass a bounded snapshot to the iframe on request. Enable it only on sites you trust and only when contextual support justifies the privacy exposure.
+</Warning>
+
+## Session and SPA behavior
+
+With DOM access enabled, the loader maintains a stable anonymous visitor ID and reports URL/title changes from History API navigation. With DOM access disabled, it uses an ephemeral visitor ID. Device and page visibility rules are evaluated before rendering.
+
+## Troubleshoot
+
+<AccordionGroup>
+  <Accordion title="Invalid config — widget not loaded">
+    Confirm the generated script has `data-InteraOne-public-key`, the public config endpoint can find that widget, and the API URL baked into the bundle is correct.
+  </Accordion>
+  <Accordion title="Iframe stays on Connecting">
+    Check browser console origin errors, CDN iframe assets, Socket.IO reachability, reverse-proxy WebSocket support, and widget-token creation.
+  </Accordion>
+  <Accordion title="Visible on the wrong pages">
+    Review page rules against the full current URL and SPA navigation. Ensure the saved `showWidget` and selected-page settings match your intent.
+  </Accordion>
+</AccordionGroup>

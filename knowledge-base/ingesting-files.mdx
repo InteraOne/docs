@@ -1,3 +1,46 @@
 ---
-title: "ingesting-files"
+title: "Ingest files"
+description: "Upload PDF and DOCX knowledge sources through MinIO, confirm them, monitor indexing, and troubleshoot extraction."
+icon: "file-up"
 ---
+
+File ingestion uses a two-step presigned upload so document bytes move directly to MinIO while the gateway retains tenant-scoped metadata and authorization.
+
+<Steps>
+  <Step title="Request an upload">
+    In **Knowledge → Static**, choose a file and provide its title/catalog information. The gateway validates the request and returns a presigned upload target plus a file key.
+  </Step>
+  <Step title="Upload directly to storage">
+    The console sends the file to MinIO using the presigned target. The API process does not proxy the whole document body.
+  </Step>
+  <Step title="Confirm the document">
+    The console confirms the upload. The gateway verifies metadata and enqueues the document for ingestion.
+  </Step>
+  <Step title="Monitor status">
+    Status progresses through `queued` and `indexing` to `indexed`, or to `failed` with an error message. Use **Reindex** after correcting a transient failure.
+  </Step>
+</Steps>
+
+## Extraction behavior
+
+The agent streams objects from MinIO and uses source-specific parsers: `pdf-parse` for PDF and Mammoth for DOCX. Text is normalized and segmented before semantic chunking, then embeddings are generated in bounded concurrent batches.
+
+<Info>
+  Scanned image-only PDFs need OCR before upload; the current parser extracts embedded text and does not provide an OCR pipeline.
+</Info>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Upload succeeds but confirmation fails">
+    Verify that gateway and agent use the same bucket and credentials, the object key was not changed, and the public/presigned MinIO URL is reachable from the browser.
+  </Accordion>
+  <Accordion title="Document is indexed with little content">
+    Check whether the PDF contains selectable text, whether the DOCX has content in unsupported embedded objects, and inspect reported word/chunk counts.
+  </Accordion>
+  <Accordion title="Embedding fails">
+    Confirm provider credentials, model availability, vector dimensions, and that Qdrant is healthy. Retry only after resolving the underlying mismatch.
+  </Accordion>
+</AccordionGroup>
+
+Deleting a source removes its managed metadata and should remove its associated vectors/object according to the gateway service. Confirm backup and retention expectations before deletion.

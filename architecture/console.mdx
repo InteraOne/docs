@@ -1,3 +1,57 @@
 ---
-title: "console"
+title: "Console application"
+sidebarTitle: "Console"
+description: "Explore the Vite and React operator console, domain organization, route protection, data fetching, and runtime configuration."
+icon: "layout-dashboard"
 ---
+
+`apps/console` is a Vite + React 19 single-page application. It uses React Router for navigation, TanStack Query for server state, Socket.IO for live updates, Tailwind CSS, and Radix-based UI primitives.
+
+<Info>
+  Older project notes may describe a Next.js application. The current source uses Vite (`vite.config.ts`, `src/main.tsx`) and React Router; this page reflects the running code.
+</Info>
+
+## Feature domains
+
+| Domain | Primary screens |
+| --- | --- |
+| `auth` | Signup, OTP, login, password recovery, invitation acceptance |
+| `dashboard` | Owner, admin, and agent summaries plus analytics charts |
+| `conversation` | Open and assigned inboxes, chat detail, routing, notes, assist |
+| `tickets` / `contacts` | Ticket workflow and customer records |
+| `knowledge` | Static sources and real-time/live sources |
+| `channels` / `widget` | Email, WhatsApp, Telegram, widget appearance, QR |
+| `member` / `agent` / `settings` | Team management, agent settings, organization settings |
+
+## Authorization in the UI
+
+Routes are wrapped by `ProtectedRoute` with minimum roles such as `agent`, `admin`, or `owner`. The UI also applies enterprise feature policy and usage banners.
+
+<Warning>
+  Client-side guards improve navigation but are not a security boundary. The gateway repeats authentication, organization resolution, role checks, and entitlement enforcement for protected operations.
+</Warning>
+
+## Data flow
+
+```mermaid
+flowchart LR
+  Page --> Hook[Domain hook]
+  Hook --> Query[TanStack Query]
+  Query --> Api[Typed domain API]
+  Api --> Client[Shared API client]
+  Client --> Gateway
+  Gateway -. Socket.IO event .-> Hook
+  Hook --> Cache[Query cache update/invalidation]
+```
+
+## Build-time variables
+
+| Variable | Use |
+| --- | --- |
+| `VITE_API_URL` | Gateway REST base URL |
+| `VITE_SOCKET_URL` | Socket.IO origin |
+| `VITE_WIDGET_URL` | Public widget bundle URL |
+| `VITE_PUBLIC_ENV` | Environment label exposed to the frontend |
+| `VITE_INTERAONE_MODE` | Build/runtime mode hint for open-core presentation |
+
+Production uses an entrypoint script so container environment values can be injected into the static Vite build at startup.

@@ -1,3 +1,40 @@
 ---
-title: "deploying-to-railway"
+title: "Deploy to Railway"
+sidebarTitle: "Railway"
+description: "Translate InteraOne's Docker Compose topology into Railway services, variables, private networking, volumes, and public domains."
+icon: "train-front"
 ---
+
+Railway does not run a Compose file as one unit. Its official [Docker Compose guide](https://docs.railway.com/guides/docker-compose) maps each Compose service to a Railway service, networks to private networking, variables to Railway variables, and named volumes to separate Railway volumes.
+
+## Translation map
+
+| InteraOne component | Railway shape |
+| --- | --- |
+| Console and gateway | Public services with domains |
+| Agent and worker | Private background services |
+| MongoDB, Redis, MinIO, Qdrant | Managed/plugin or private service, each with persistent volume where required |
+| Launcher deploy | Build/deploy job that uploads widget assets |
+| Caddy | Often replaced by Railway public networking/domains; keep only if your routing design needs it |
+
+<Steps>
+  <Step title="Create data services first">
+    Provision stateful services, attach a distinct volume to each, and record private connection variables.
+  </Step>
+  <Step title="Create application services">
+    Deploy each application Dockerfile/image as its own Railway service. Configure agent/worker without public networking.
+  </Step>
+  <Step title="Set shared variables">
+    Keep JWT, Redis, MinIO, internal AI, and provider values consistent where required. Use private service DNS names for internal connections.
+  </Step>
+  <Step title="Expose web, API, and assets">
+    Add custom domains and set console/widget public URLs to the final HTTPS origins. Confirm Socket.IO upgrade behavior.
+  </Step>
+  <Step title="Handle startup dependencies">
+    Railway has no direct `depends_on` equivalent. Services must tolerate unavailable dependencies and retry, or be deployed in a controlled order.
+  </Step>
+</Steps>
+
+<Warning>
+  Verify volume backup/restore, MinIO public asset delivery, Caddy replacement, and one-shot launcher deployment in a staging project. The checked-in Compose file cannot be uploaded unchanged and assumed equivalent.
+</Warning>

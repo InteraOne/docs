@@ -1,3 +1,56 @@
 ---
-title: "installation"
+title: "Production installation"
+sidebarTitle: "Installation"
+description: "Install InteraOne on a Linux host with Docker Compose, DNS, production secrets, health checks, and a first-login test."
+icon: "download"
 ---
+
+import SecurityNote from "/snippets/security-note.mdx";
+
+Use a supported 64-bit Linux host with Docker Engine, the Compose plugin, Git, DNS control, and enough memory/disk for five applications plus MongoDB, Redis, Qdrant, and MinIO.
+
+<Steps>
+  <Step title="Provision and secure the host">
+    Create a non-root administrative user, use SSH keys, apply OS updates, enable a firewall, and allow inbound `80`/`443`. Restrict SSH to trusted sources when possible.
+  </Step>
+  <Step title="Clone a reviewed release">
+    ```bash
+    git clone https://github.com/InteraOne/InteraOne.git
+    cd InteraOne
+    git checkout RELEASE_TAG
+    ```
+
+    Prefer a release tag or commit SHA over a moving branch.
+  </Step>
+  <Step title="Create production configuration">
+    ```bash
+    cp docker/.env.example docker/.env
+    ```
+
+    Fill every credential, hostname, public URL, provider key, and shared secret. Review [environment variables](/self-hosting/environment-variables).
+  </Step>
+  <Step title="Create DNS records">
+    Point the API, web, CDN, and log hostnames to the server. Restrict the log hostname through identity-aware access, VPN, or trusted IPs.
+  </Step>
+  <Step title="Validate and start">
+    ```bash
+    docker compose --env-file docker/.env -f docker/docker-compose.yml config
+    docker compose --env-file docker/.env -f docker/docker-compose.yml pull
+    docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
+    ```
+  </Step>
+  <Step title="Verify">
+    ```bash
+    docker compose --env-file docker/.env -f docker/docker-compose.yml ps
+    curl https://YOUR_API_HOST/api/v1/health
+    ```
+
+    Open the web host, create the first account/organization, configure a model provider, add a small knowledge source, and test a widget conversation.
+  </Step>
+</Steps>
+
+<SecurityNote />
+
+<Note>
+  Size recommendations depend heavily on concurrent conversations, model hosting, crawl volume, and knowledge size. Start with observed load testing rather than a universal VM size.
+</Note>

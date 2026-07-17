@@ -1,3 +1,47 @@
 ---
-title: "overview"
+title: "Contributing overview"
+sidebarTitle: "Overview"
+description: "Set up an InteraOne contribution, choose an issue, keep scope focused, verify changes, and respect the repository licenses."
+icon: "git-pull-request"
 ---
+
+InteraOne welcomes focused fixes, features, tests, integrations, and documentation improvements. Start by reading the repository `CONTRIBUTION.md`, issue templates, pull-request template, root license, and `ee/LICENSE` when enterprise code is involved.
+
+<Steps>
+  <Step title="Choose or open an issue">
+    Confirm the problem, expected behavior, affected application, and whether the change belongs in open-source or enterprise code.
+  </Step>
+  <Step title="Fork and branch">
+    Create a short-lived branch from the current target branch. Keep unrelated refactors out of the change.
+  </Step>
+  <Step title="Develop locally">
+    Follow [local development](/contributing/local-development) and match the existing domain/module patterns.
+  </Step>
+  <Step title="Verify proportionally">
+    Run focused tests while iterating, then lint, type-check, build, and integration checks relevant to the changed packages.
+  </Step>
+  <Step title="Open a pull request">
+    Explain the user impact, implementation, testing, screenshots/API examples, configuration changes, and rollout/rollback concerns.
+  </Step>
+</Steps>
+
+## Good first contribution areas
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book-open">
+    Correct a source-aligned guide, expand OpenAPI annotations, or add troubleshooting evidence.
+  </Card>
+  <Card title="Tests" icon="test-tube">
+    Add regression coverage for gateway modules, middleware, queue behavior, or browser widget protocol.
+  </Card>
+  <Card title="Adapters" icon="plug">
+    Improve a provider implementation behind an existing interface with failure and security tests.
+  </Card>
+  <Card title="Accessibility" icon="accessibility">
+    Improve keyboard, screen-reader, contrast, and responsive behavior in console or widget.
+  </Card>
+</CardGroup>
+
+<Info>
+  Generated artifacts, secrets, local `.env` files, and dependency directories do not belong in pull requests.
+</Info>

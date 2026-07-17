@@ -1,3 +1,47 @@
 ---
-title: "launcher"
+title: "Launcher and widget"
+sidebarTitle: "Launcher"
+description: "Learn how the embeddable loader, isolated iframe, visitor session, page context, and cross-origin protocol work."
+icon: "message-circle"
 ---
+
+`apps/launcher` builds two browser artifacts: a small host-page loader and the iframe application that renders chat. This split isolates customer CSS and JavaScript from the widget UI while allowing a controlled exchange of page and sizing context.
+
+```mermaid
+sequenceDiagram
+  participant H as Host page loader
+  participant G as Gateway
+  participant I as Widget iframe
+  H->>G: Fetch public widget configuration
+  H->>H: Apply device and page visibility rules
+  H->>I: Create iframe
+  I-->>H: WIDGET_READY (protocol v1)
+  H->>I: INIT_WIDGET
+  I->>G: Create/restore visitor session
+  I->>G: Connect Socket.IO
+  H->>I: PAGE_CHANGE events
+  I-->>H: OPEN/CLOSE/RESIZE events
+```
+
+## Security properties
+
+- All protocol messages include version `1`; unknown versions are ignored.
+- Both sides validate `event.origin` and the expected window before handling messages.
+- Production messages use a specific target origin instead of `*`.
+- The public key selects configuration but is not an administrator credential.
+- Widget tokens scope the visitor connection separately from operator JWTs.
+- Host-page DOM access can be disabled. When enabled, extracted semantic text is cleaned and capped before it crosses the iframe boundary.
+
+## Configurable behavior
+
+The widget model supports theme, colors, placement, logos, welcome copy, visibility rules, mobile/desktop switches, auto-open, AI enablement, fallback to an agent, visitor field collection, host DOM access, and quick suggestions.
+
+<Note>
+  The loader watches History API changes and `popstate`, so page visibility and context can stay current in single-page applications without reloading the script.
+</Note>
+
+## Artifact delivery
+
+In local development, `make widget-deploy` builds and uploads the launcher assets to MinIO. In production, the Compose stack runs `launcher-deploy` as a one-shot service and serves the resulting assets through the configured CDN host.
+
+See [web widget](/channels/web-widget) for installation and operator-facing configuration.

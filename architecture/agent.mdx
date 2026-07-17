@@ -1,3 +1,60 @@
 ---
-title: "agent"
+title: "AI agent service"
+sidebarTitle: "Agent"
+description: "Understand InteraOne's AI workers, pipeline modules, provider layer, tools, ingestion, vector search, and health behavior."
+icon: "bot"
 ---
+
+`apps/agent` is a queue-driven TypeScript process. It does not expose customer APIs; it consumes work from Redis, calls AI and data services, publishes ordered results, and exposes a small health server on port `4010` by default.
+
+## Started workers
+
+| Worker | Workload |
+| --- | --- |
+| Chat reply | Conversation gates, context, retrieval, tools, generation, streaming, final response |
+| Knowledge ingestion | File, text, URL, crawl, and FAQ extraction/chunking/embedding/upsert |
+| Conversation analysis | Post-conversation intelligence and derived metadata |
+| Agent assist | Suggested replies, generated notes, and draft assistance |
+| Observability | Batched AI-call event persistence |
+
+## Internal layers
+
+```text
+modules/          chat, assist, agents/tools, and ingestion behavior
+workers/          BullMQ consumers and retry lifecycle
+infrastructure/   API client, Redis, queues, providers, MinIO, Qdrant
+shared/           IDs, distributed locking, logging, timing, synchronization
+health/           lightweight process health server
+```
+
+## Provider architecture
+
+LLM and embedding implementations conform to base interfaces and are selected by `ProviderFactory`. The current source includes AWS Bedrock, Hugging Face, Ollama, and OpenAI providers. A registry describes capabilities such as streaming and tool support, while routing code tracks health and can apply an ordered fallback chain.
+
+<Warning>
+  The model and embedding dimensions must agree with the Qdrant collection. Changing embedding models without rebuilding vectors can cause dimension errors or poor retrieval quality.
+</Warning>
+
+## Reliability behavior
+
+- Conversation gates prevent stale jobs from replying after closure, assignment, or escalation.
+- URL ingestion uses a distributed lock to prevent duplicate crawls.
+- Streaming chunks are sequence-numbered so the gateway can preserve order.
+- Provider failure returns a safe message and can auto-escalate when human fallback is enabled.
+- Agent runs record steps, duration, usage, status, and error information through the internal gateway API.
+- Graceful shutdown flushes observability data and closes every worker plus the health server.
+
+<CardGroup cols={2}>
+  <Card title="Agent pipeline" icon="workflow" href="/ai/agent-pipeline">
+    Follow gates, context, retrieval, model execution, and output.
+  </Card>
+  <Card title="Tool calling" icon="wrench" href="/ai/tool-calling">
+    Review the built-in action surface and security context.
+  </Card>
+  <Card title="Knowledge ingestion" icon="file-input" href="/knowledge-base/overview">
+    See how sources become tenant-filtered vectors.
+  </Card>
+  <Card title="Observability" icon="chart-no-axes-combined" href="/ai/observability">
+    Track latency, tokens, cost estimates, steps, and errors.
+  </Card>
+</CardGroup>

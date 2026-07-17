@@ -1,0 +1,84 @@
+---
+title: "API overview"
+sidebarTitle: "Overview"
+description: "Integrate with the InteraOne gateway REST API, understand base paths, response envelopes, pagination, errors, and request IDs."
+icon: "braces"
+---
+
+The gateway exposes versioned JSON endpoints below `/api/v1`. This documentation's generated endpoint pages use the repository's OpenAPI 3.0 document and include an interactive Mintlify request playground.
+
+<Info>
+  The bundled OpenAPI server is {{localGateway}}. For a self-hosted deployment, select or substitute your own public gateway origin before sending a request.
+</Info>
+
+## Base URL
+
+```text
+http://localhost:3002/api/v1
+```
+
+The health endpoint is public:
+
+```bash
+curl http://localhost:3002/api/v1/health
+```
+
+## Response envelope
+
+<ResponseField name="success" type="boolean" required>
+  Whether the gateway completed the request successfully.
+</ResponseField>
+<ResponseField name="message" type="string" required>
+  Human-readable outcome. Do not use it as a stable programmatic error code.
+</ResponseField>
+<ResponseField name="data" type="any">
+  Endpoint-specific result. Omitted when there is no response payload.
+</ResponseField>
+<ResponseField name="error" type="string">
+  Optional diagnostic detail on failed requests.
+</ResponseField>
+<ResponseField name="pagination" type="object">
+  When present, contains `page`, `limit`, `total`, and `pages`.
+</ResponseField>
+
+```json
+{
+  "success": true,
+  "message": "Organizations list retrieved successfully",
+  "data": []
+}
+```
+
+## Request conventions
+
+- Send JSON with `Content-Type: application/json` unless an endpoint says otherwise.
+- Protected operator endpoints use `Authorization: Bearer <access-token>`.
+- The gateway accepts or generates `x-request-id` and returns it in the response header for log correlation.
+- Use ISO 8601 strings for dates unless the endpoint schema specifies another form.
+- Keep record IDs opaque; do not infer their type or construct them client-side.
+- Use pagination on collection endpoints and bound page sizes.
+
+## Errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request validation or state error |
+| `401` | Missing, invalid, or expired authentication |
+| `403` | Valid identity without membership, role, plan, or feature permission |
+| `404` | Resource not found in the resolved tenant |
+| `409` | Conflict or duplicate operation where implemented |
+| `429` | Global, authentication, billing-webhook, or plan usage limit |
+| `500` | Unexpected service error |
+
+<Warning>
+  Routes documented with `x-ai-tool-secret` are internal service endpoints. Do not call them from browsers or distribute that secret to integration clients.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key-round" href="/api-reference/authentication">
+    Sign up, log in, switch tenants, refresh access, and log out.
+  </Card>
+  <Card title="Interactive endpoints" icon="play">
+    Choose an endpoint in the API reference tab, authorize, edit parameters, and send a test request.
+  </Card>
+</CardGroup>

@@ -1,3 +1,35 @@
 ---
-title: "telegram"
+title: "Telegram channel"
+sidebarTitle: "Telegram"
+description: "Connect a Telegram bot, register its webhook, map chat sessions, send replies, and rotate credentials safely."
+icon: "send"
 ---
+
+The Telegram channel uses a bot token. During provisioning, InteraOne calls `getMe` to validate the token, stores the bot username, and registers the public inbound webhook with `setWebhook`.
+
+## Configure
+
+<Steps>
+  <Step title="Create a bot">
+    Use Telegram's BotFather to create a bot and copy its token. Treat the token as a password.
+  </Step>
+  <Step title="Set the public API URL">
+    Configure `PUBLIC_API_URL` to the gateway's externally reachable HTTPS origin. Telegram cannot call a localhost URL.
+  </Step>
+  <Step title="Add the channel">
+    In **Dashboard → Channels → Telegram**, provide a 2–100 character name and the bot token. InteraOne validates the bot and registers `/api/v1/channels/telegram/inbound/:channelId`.
+  </Step>
+  <Step title="Send a test message">
+    Start the bot from a Telegram account, confirm a conversation appears, and reply from the inbox.
+  </Step>
+</Steps>
+
+Inbound chats map to `telegram-<chatId>` sessions and are tagged `telegram`. Outbound replies use Telegram's `sendMessage` endpoint with the stored bot token.
+
+## Rotation and deletion
+
+If the token is exposed, revoke it in BotFather, save the new token, and re-verify the channel so the webhook is registered with valid credentials. When a Telegram channel is deleted, the strategy attempts to remove its webhook.
+
+<Warning>
+  The current webhook path is discoverable and the source does not configure a Telegram secret-token header. Keep the channel ID unguessable, validate payload shape, rate-limit abuse, and consider adding Telegram's webhook secret header before high-risk production use.
+</Warning>

@@ -1,3 +1,40 @@
 ---
-title: "ingesting-faqs"
+title: "Ingest FAQs"
+description: "Author high-quality question and answer knowledge for direct semantic matching and normal agent retrieval."
+icon: "circle-help"
 ---
+
+FAQ sources are structured question/answer pairs. They can be retrieved by tools like other knowledge and also power a fast path that can answer without an LLM call.
+
+## Write effective FAQs
+
+<Steps>
+  <Step title="Use a customer-shaped question">
+    Write the phrase people actually ask, including the product or action when ambiguity is possible.
+  </Step>
+  <Step title="Make the answer self-contained">
+    Include the direct answer, necessary constraints, and the next action. Avoid references such as “as above” that depend on page layout.
+  </Step>
+  <Step title="Separate distinct intents">
+    Do not combine billing, security, and troubleshooting in one pair. Smaller intents produce cleaner semantic matches.
+  </Step>
+  <Step title="Index and test paraphrases">
+    Ask the widget several natural variants and confirm the expected FAQ wins over similar entries.
+  </Step>
+</Steps>
+
+## Fast-path behavior
+
+For question-like messages, the agent embeds the text and searches the organization's FAQ vectors for one top result. A similarity score of `0.85` or higher and a non-empty stored answer cause the pipeline to publish that answer directly.
+
+<Info>
+  The threshold favors precision over recall because the response bypasses model reasoning. Lower-scoring FAQs can still contribute through normal tool-based retrieval.
+</Info>
+
+## Maintenance
+
+- Review unanswered-question records for missing FAQ candidates.
+- Consolidate near-duplicates that compete for the same query.
+- Include dates or plan scope where policy changes over time.
+- Reindex after edits and test both the direct answer and nearby negative cases.
+- Remove answers that require real-time account data; use verified tools instead.

@@ -1,9 +1,9 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Interaone API Documentation",
+        "title": "InteraOne API",
         "version": "1.0.0",
-        "description": "API specifications for InteraOne gateway services"
+        "description": "REST API for InteraOne authentication, organizations, support operations, channels, knowledge, AI coordination, and administration."
     },
     "servers": [
         {
@@ -383,6 +383,23 @@
                     "401": {
                         "description": "Invalid AI secret"
                     }
+                }
+            }
+        },
+        "/tickets/ai/status": {
+            "get": {
+                "summary": "Get ticket status from AI context",
+                "tags": ["Tickets"],
+                "parameters": [
+                    {"in": "header", "name": "x-ai-tool-secret", "required": true, "schema": {"type": "string"}},
+                    {"in": "query", "name": "organizationId", "required": true, "schema": {"type": "string"}},
+                    {"in": "query", "name": "ticketIdentifier", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {
+                    "200": {"description": "Ticket status retrieved successfully"},
+                    "400": {"description": "Required query parameters are missing"},
+                    "401": {"description": "Invalid AI secret"},
+                    "404": {"description": "Ticket not found"}
                 }
             }
         },
@@ -1290,6 +1307,55 @@
                         "description": "Organization deleted successfully"
                     }
                 }
+            }
+        },
+        "/organizations/billing/webhook/dodo": {
+            "post": {
+                "summary": "Handle a Dodo Payments billing webhook",
+                "description": "Public provider callback protected by billing webhook rate limiting and provider signature verification.",
+                "tags": ["Organizations"],
+                "requestBody": {
+                    "required": true,
+                    "content": {"application/json": {"schema": {"type": "object", "additionalProperties": true}}}
+                },
+                "responses": {
+                    "200": {"description": "Webhook processed or previously processed"},
+                    "400": {"description": "Invalid webhook payload or signature"},
+                    "429": {"description": "Webhook rate limit exceeded"}
+                }
+            }
+        },
+        "/organizations/{orgId}/billing/portal": {
+            "get": {
+                "summary": "Create an enterprise billing portal session",
+                "tags": ["Organizations"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [
+                    {"in": "path", "name": "orgId", "required": true, "schema": {"type": "string"}},
+                    {"in": "query", "name": "targetPlan", "required": false, "schema": {"type": "string", "enum": ["pro", "proplus"]}}
+                ],
+                "responses": {
+                    "200": {"description": "Billing portal session URL created"},
+                    "403": {"description": "Owner role or enterprise availability required"}
+                }
+            }
+        },
+        "/organizations/{orgId}/billing/entitlements": {
+            "get": {
+                "summary": "Get active plan entitlements and limits",
+                "tags": ["Organizations"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [{"in": "path", "name": "orgId", "required": true, "schema": {"type": "string"}}],
+                "responses": {"200": {"description": "Entitlements retrieved successfully"}}
+            }
+        },
+        "/organizations/{orgId}/billing/usage": {
+            "get": {
+                "summary": "Get current billing-period usage",
+                "tags": ["Organizations"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [{"in": "path", "name": "orgId", "required": true, "schema": {"type": "string"}}],
+                "responses": {"200": {"description": "Usage metrics retrieved successfully"}}
             }
         },
         "/observability/ai-calls": {
@@ -2972,6 +3038,132 @@
                         "description": "Successfully retrieved list of contacts"
                     }
                 }
+            },
+            "delete": {
+                "summary": "Delete selected organization contacts",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "requestBody": {
+                    "required": true,
+                    "content": {"application/json": {"schema": {
+                        "type": "object",
+                        "required": ["ids"],
+                        "properties": {"ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}
+                    }}}
+                },
+                "responses": {"200": {"description": "Contacts deleted successfully"}}
+            }
+        },
+        "/contacts/tags": {
+            "post": {
+                "summary": "Add tags to multiple contacts",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "requestBody": {"required": true, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["ids", "tags"], "properties": {
+                        "ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                        "tags": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 50}}
+                    }
+                }}}},
+                "responses": {"200": {"description": "Tags added successfully"}}
+            }
+        },
+        "/contacts/{id}/notes": {
+            "post": {
+                "summary": "Add a note to a contact",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [{"in": "path", "name": "id", "required": true, "schema": {"type": "string"}}],
+                "requestBody": {"required": true, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["content"], "properties": {"content": {"type": "string", "maxLength": 2000}}
+                }}}},
+                "responses": {"200": {"description": "Contact note added successfully"}}
+            }
+        },
+        "/contacts/{id}/notes/{noteId}": {
+            "patch": {
+                "summary": "Update a contact note",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [
+                    {"in": "path", "name": "id", "required": true, "schema": {"type": "string"}},
+                    {"in": "path", "name": "noteId", "required": true, "schema": {"type": "string"}}
+                ],
+                "requestBody": {"required": true, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["content"], "properties": {"content": {"type": "string", "maxLength": 2000}}
+                }}}},
+                "responses": {"200": {"description": "Contact note updated successfully"}}
+            },
+            "delete": {
+                "summary": "Delete a contact note",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [
+                    {"in": "path", "name": "id", "required": true, "schema": {"type": "string"}},
+                    {"in": "path", "name": "noteId", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {"200": {"description": "Contact note deleted successfully"}}
+            }
+        },
+        "/contacts/{id}/tags": {
+            "post": {
+                "summary": "Add a tag to a contact",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [{"in": "path", "name": "id", "required": true, "schema": {"type": "string"}}],
+                "requestBody": {"required": true, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["tag"], "properties": {"tag": {"type": "string", "maxLength": 50}}
+                }}}},
+                "responses": {"200": {"description": "Contact tag added successfully"}}
+            }
+        },
+        "/contacts/{id}/tags/{tag}": {
+            "delete": {
+                "summary": "Remove a tag from a contact",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [
+                    {"in": "path", "name": "id", "required": true, "schema": {"type": "string"}},
+                    {"in": "path", "name": "tag", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {"200": {"description": "Contact tag removed successfully"}}
+            }
+        },
+        "/contacts/conflicts": {
+            "get": {
+                "summary": "List pending contact conflicts",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "responses": {"200": {"description": "Pending contact conflicts retrieved successfully"}}
+            }
+        },
+        "/contacts/conflicts/{id}/resolve": {
+            "post": {
+                "summary": "Apply or dismiss a contact conflict",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [{"in": "path", "name": "id", "required": true, "schema": {"type": "string"}}],
+                "requestBody": {"required": true, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["action"], "properties": {"action": {"type": "string", "enum": ["apply", "dismiss"]}}
+                }}}},
+                "responses": {"200": {"description": "Contact conflict resolved successfully"}}
+            }
+        },
+        "/contacts/{id}": {
+            "patch": {
+                "summary": "Update a contact",
+                "tags": ["Contacts"],
+                "security": [{"BearerAuth": []}],
+                "parameters": [{"in": "path", "name": "id", "required": true, "schema": {"type": "string"}}],
+                "requestBody": {"required": true, "content": {"application/json": {"schema": {
+                    "type": "object", "properties": {
+                        "name": {"type": "string", "maxLength": 120},
+                        "email": {"type": "string", "format": "email"},
+                        "phone": {"type": "string", "maxLength": 40},
+                        "company": {"type": "string", "maxLength": 120}
+                    }
+                }}}},
+                "responses": {"200": {"description": "Contact updated successfully"}}
             }
         },
         "/channels/inbound": {
@@ -3154,21 +3346,25 @@
                                 "type": "object",
                                 "required": [
                                     "name",
-                                    "phoneNumberId",
-                                    "wabaId",
-                                    "accessToken"
+                                    "phoneNumber",
+                                    "accountSid",
+                                    "authToken"
                                 ],
                                 "properties": {
                                     "name": {
                                         "type": "string"
                                     },
-                                    "phoneNumberId": {
+                                    "phoneNumber": {
                                         "type": "string"
                                     },
-                                    "wabaId": {
+                                    "accountSid": {
                                         "type": "string"
                                     },
-                                    "accessToken": {
+                                    "authToken": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "messagingServiceSid": {
                                         "type": "string"
                                     }
                                 }
@@ -3360,11 +3556,18 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
+                                    "name",
                                     "email"
                                 ],
                                 "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 50
+                                    },
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
                                     }
                                 }
                             }
@@ -3395,22 +3598,28 @@
                                 "type": "object",
                                 "required": [
                                     "email",
-                                    "name",
-                                    "password",
-                                    "otp"
+                                    "organizationName",
+                                    "password"
                                 ],
                                 "properties": {
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
                                     },
-                                    "name": {
-                                        "type": "string"
+                                    "organizationName": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 100
                                     },
                                     "password": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "format": "password"
                                     },
-                                    "otp": {
-                                        "type": "string"
+                                    "domain": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "maxLength": 256
                                     }
                                 }
                             }
@@ -3478,11 +3687,20 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
-                                    "email"
+                                    "email",
+                                    "type"
                                 ],
                                 "properties": {
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "email_verification",
+                                            "password_reset"
+                                        ]
                                     }
                                 }
                             }
@@ -3513,14 +3731,25 @@
                                 "type": "object",
                                 "required": [
                                     "email",
-                                    "otp"
+                                    "code",
+                                    "type"
                                 ],
                                 "properties": {
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
                                     },
-                                    "otp": {
-                                        "type": "string"
+                                    "code": {
+                                        "type": "string",
+                                        "minLength": 6,
+                                        "maxLength": 6
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "email_verification",
+                                            "password_reset"
+                                        ]
                                     }
                                 }
                             }
@@ -3551,18 +3780,23 @@
                                 "type": "object",
                                 "required": [
                                     "email",
-                                    "password",
-                                    "otp"
+                                    "code",
+                                    "newPassword"
                                 ],
                                 "properties": {
                                     "email": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
                                     },
-                                    "password": {
-                                        "type": "string"
+                                    "code": {
+                                        "type": "string",
+                                        "minLength": 6,
+                                        "maxLength": 6
                                     },
-                                    "otp": {
-                                        "type": "string"
+                                    "newPassword": {
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "format": "password"
                                     }
                                 }
                             }
@@ -3684,6 +3918,30 @@
                         "description": "Unauthorized"
                     }
                 }
+            }
+        },
+        "/analytics/summary": {
+            "get": {
+                "summary": "Get organization analytics summary",
+                "tags": ["Analytics"],
+                "security": [{"BearerAuth": []}],
+                "responses": {"200": {"description": "Analytics summary retrieved successfully"}}
+            }
+        },
+        "/analytics/trends": {
+            "get": {
+                "summary": "Get organization analytics trends",
+                "tags": ["Analytics"],
+                "security": [{"BearerAuth": []}],
+                "responses": {"200": {"description": "Analytics trends retrieved successfully"}}
+            }
+        },
+        "/analytics/agent/stats": {
+            "get": {
+                "summary": "Get current agent analytics statistics",
+                "tags": ["Analytics"],
+                "security": [{"BearerAuth": []}],
+                "responses": {"200": {"description": "Agent statistics retrieved successfully"}}
             }
         },
         "/analytics/owner/summary": {
@@ -3822,5 +4080,22 @@
             }
         }
     },
-    "tags": []
+    "tags": [
+        {"name": "Authentication", "description": "Signup, login, OTP, password recovery, refresh, logout, and profile."},
+        {"name": "Organizations", "description": "Tenant lifecycle, switching, billing entitlements, and usage."},
+        {"name": "Memberships", "description": "Invitations, members, roles, and membership status."},
+        {"name": "Agent", "description": "Support-agent profile and presence."},
+        {"name": "Conversations", "description": "Inbox, messages, routing, status, memory, handoff, and agent assist."},
+        {"name": "Contacts", "description": "Customer profiles, notes, tags, and conflict resolution."},
+        {"name": "Tickets", "description": "Ticket creation, assignment, updates, notes, replies, and AI operations."},
+        {"name": "Templates", "description": "Saved support response templates."},
+        {"name": "Widget", "description": "Widget configuration, public sessions, conversations, and QR scans."},
+        {"name": "Channels", "description": "Email, WhatsApp, Telegram, provisioning, verification, and inbound webhooks."},
+        {"name": "Email", "description": "Internal email sending and contact verification."},
+        {"name": "Knowledge", "description": "Knowledge sources, uploads, indexing, reindexing, and unanswered questions."},
+        {"name": "Storage", "description": "Presigned object upload/download and metadata operations."},
+        {"name": "Notifications", "description": "Tenant and user notifications."},
+        {"name": "Analytics", "description": "Organization, owner, and agent support metrics."},
+        {"name": "Observability", "description": "AI call ingestion and aggregate performance data."}
+    ]
 }

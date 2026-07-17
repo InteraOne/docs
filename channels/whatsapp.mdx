@@ -1,3 +1,51 @@
 ---
-title: "whatsapp"
+title: "WhatsApp channel"
+sidebarTitle: "WhatsApp"
+description: "Connect a Twilio WhatsApp sender, verify credentials, configure the signed webhook, and map customer threads."
+icon: "message-square"
 ---
+
+InteraOne's current WhatsApp strategy uses Twilio. It validates account credentials, sends through the Twilio Messages API, and receives form-encoded Twilio webhooks.
+
+## Required values
+
+<ParamField body="name" type="string" required>
+  Internal channel name, 2–100 characters.
+</ParamField>
+<ParamField body="phoneNumber" type="string" required>
+  WhatsApp-enabled Twilio sender number.
+</ParamField>
+<ParamField body="accountSid" type="string" required>
+  Twilio Account SID.
+</ParamField>
+<ParamField body="authToken" type="string" required>
+  Twilio Auth Token, stored by the gateway and masked in API responses.
+</ParamField>
+<ParamField body="messagingServiceSid" type="string">
+  Optional Twilio Messaging Service SID.
+</ParamField>
+
+## Setup
+
+<Steps>
+  <Step title="Prepare a Twilio WhatsApp sender">
+    Complete Twilio's WhatsApp onboarding and confirm the sender can exchange messages.
+  </Step>
+  <Step title="Create the InteraOne channel">
+    Enter the values above in **Dashboard → Channels → WhatsApp**, then verify the credentials.
+  </Step>
+  <Step title="Configure inbound webhook">
+    Point Twilio at `https://YOUR_API_HOST/api/v1/channels/whatsapp/inbound/CHANNEL_ID` using the HTTP method expected by the gateway.
+  </Step>
+  <Step title="Test both directions">
+    Send from a real WhatsApp account and reply from the InteraOne inbox.
+  </Step>
+</Steps>
+
+Inbound requests must include `x-twilio-signature`. The gateway reconstructs the request URL/parameters and validates the signature using the channel's auth token before processing.
+
+Customer threads use `whatsapp-<fromPhone>` as their session key, are tagged `whatsapp`, and retain channel ID metadata for correct outbound routing.
+
+<Warning>
+  If a reverse proxy changes the externally visible URL, signature verification can fail. Ensure `PUBLIC_API_URL`, Caddy host routing, and the Twilio webhook URL describe the same HTTPS endpoint.
+</Warning>

@@ -1,3 +1,42 @@
 ---
-title: "email"
+title: "Email channel"
+sidebarTitle: "Email"
+description: "Configure a support email domain, publish DNS records, verify delivery, and understand SES/SNS inbound processing."
+icon: "mail"
 ---
+
+The email channel provisions a tenant support domain/address, displays the required DNS records, verifies the domain, accepts inbound provider events, and sends replies through the configured adapter.
+
+## Prerequisites
+
+- Administrator access in InteraOne
+- Control of the sending/receiving domain's DNS
+- AWS credentials and region when using the SES adapter
+- A public HTTPS `PUBLIC_API_URL` that the provider can reach for webhooks
+
+## Configure
+
+<Steps>
+  <Step title="Create the channel">
+    Open **Dashboard → Channels → Email**, provide a name and domain, and optionally choose an initial address.
+  </Step>
+  <Step title="Publish DNS records">
+    Add the displayed DKIM CNAME records, MX record, and SPF/TXT record exactly as shown. DNS hosts differ on whether they append the zone automatically.
+  </Step>
+  <Step title="Verify the domain">
+    Use **Verify** after DNS propagates. The strategy checks provider state and performs a live MX validation for SES.
+  </Step>
+  <Step title="Add support addresses">
+    Configure the allowed local addresses once the domain is ready, then send an inbound and outbound test.
+  </Step>
+</Steps>
+
+## Provider boundary
+
+The gateway includes email adapter implementations for MailHog, SES, Resend, and disabled behavior. The checked-in environment template documents `mailhog`, `ses`, and `disabled`; use Resend only after adding and validating the corresponding configuration for your deployment.
+
+Inbound SES/SNS requests are public but the controller verifies the SNS signature before processing. Outbound platform mail such as OTPs and invitations is queued for the platform worker, which supports MailHog, SES, or disabled delivery.
+
+<Warning>
+  Do not mark a channel verified based only on a client-side status. DNS/provider verification must succeed in the gateway, and production inbound endpoints must use HTTPS.
+</Warning>

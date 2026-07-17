@@ -1,115 +1,79 @@
-# Self Hosting
-
-InteraOne is designed to be self-hosted, giving you complete control over your infrastructure, data, security, and AI providers.
-
-Whether you're deploying on a local machine for development or running a production cluster in the cloud, the architecture remains consistent and fully under your control.
-
-This section covers everything required to deploy, configure, maintain, and upgrade an InteraOne instance.
-
+---
+title: "Self-hosting overview"
+sidebarTitle: "Overview"
+description: "Plan a secure InteraOne deployment, understand supported deployment shapes, and follow the production readiness checklist."
+icon: "server"
 ---
 
-## Why Self-Host?
+import ProductionChecklist from "/snippets/production-checklist.mdx";
+import SecurityNote from "/snippets/security-note.mdx";
 
-Self-hosting provides several advantages:
+InteraOne ships a production Docker Compose stack with Caddy, the five application services, MongoDB, Redis, MinIO, Qdrant, and Dozzle. You bring DNS, TLS-reachable hosts, persistent storage, provider credentials, and an operational backup plan.
 
-- Complete ownership of your data
-- Deploy on your preferred cloud or on-premises infrastructure
-- Bring your own AI providers and API keys
-- Customize and extend the platform
-- Control networking, storage, and security
-- Scale services independently
+<CardGroup cols={2}>
+  <Card title="Deployment architecture" icon="network" href="/self-hosting/architecture">
+    Understand public entry points, private dependencies, and stateful volumes.
+  </Card>
+  <Card title="Installation" icon="download" href="/self-hosting/installation">
+    Prepare a Linux host and launch the published images.
+  </Card>
+  <Card title="Environment variables" icon="key-round" href="/self-hosting/environment-variables">
+    Configure shared secrets, URLs, providers, storage, and runtime behavior.
+  </Card>
+  <Card title="Caddy" icon="shield-check" href="/self-hosting/reverse-proxy-caddy">
+    Route API, web, CDN, logs, WebSockets, and automatic TLS.
+  </Card>
+</CardGroup>
 
----
+## Supported deployment shapes
 
-## Architecture Overview
+<Tabs>
+  <Tab title="Single host">
+    Run the provided Compose stack on one VM. This is the documented baseline and the simplest way to keep service discovery, secrets, and upgrades consistent.
+  </Tab>
+  <Tab title="Managed data services">
+    Keep application containers on your host while pointing MongoDB, Redis, object storage, or Qdrant at managed equivalents. Validate protocol compatibility and network latency before production use.
+  </Tab>
+  <Tab title="Orchestrated">
+    Translate services, health checks, volumes, and dependencies into your orchestrator. The repository does not currently ship first-party Kubernetes manifests, so your platform team owns that translation.
+  </Tab>
+</Tabs>
 
-A typical InteraOne deployment consists of multiple services working together.
+## Public and private surfaces
 
-```text
-                    Internet
-                        │
-                        ▼
-              Reverse Proxy (Caddy)
-                        │
-                        ▼
-                  API Gateway
-        ┌───────────────┼───────────────┐
-        ▼               ▼               ▼
-    Console         Agent Service     Worker
-        │                               │
-        └───────────────┬───────────────┘
-                        ▼
-              Shared Infrastructure
-        ┌──────────┬──────────┬─────────┐
-        ▼          ▼          ▼
-     MongoDB     Redis      Qdrant
-```
+| Surface | Exposure | Notes |
+| --- | --- | --- |
+| Caddy `80/443` | Public | Redirects HTTP, terminates TLS, and proxies web/API/CDN/log hosts |
+| Console | Through Caddy | Container port `3000`; bound to loopback by the production Compose file |
+| Gateway | Through Caddy | Container port `3002`; includes REST and Socket.IO |
+| MinIO assets | Through CDN host | Object storage itself remains private; expose only the required public asset path |
+| Dozzle | Restricted | Protect the log host and its credentials; logs can contain operational metadata |
+| MongoDB, Redis, Qdrant | Private | Never expose these ports publicly |
+| Agent and worker | Private | Background processes with no customer-facing ingress |
 
-Each service has a dedicated responsibility, making deployments modular and easier to scale.
+## Production readiness
 
----
+<ProductionChecklist />
 
-## Deployment Options
+<SecurityNote />
 
-InteraOne can be deployed on a variety of environments.
+## Recommended reading order
 
-Supported deployment guides include:
+<Steps>
+  <Step title="Understand the topology">
+    Read [deployment architecture](/self-hosting/architecture) and identify every stateful component.
+  </Step>
+  <Step title="Install and configure">
+    Follow [installation](/self-hosting/installation), then complete the [environment reference](/self-hosting/environment-variables).
+  </Step>
+  <Step title="Expose it safely">
+    Configure [Docker Compose](/self-hosting/docker-compose) and [Caddy](/self-hosting/reverse-proxy-caddy) with real domains and HTTPS.
+  </Step>
+  <Step title="Operate and upgrade">
+    Establish backups, monitoring, and a tested procedure from [updating and upgrading](/self-hosting/updating-and-upgrading).
+  </Step>
+</Steps>
 
-- Docker Compose
-- Amazon Web Services (AWS)
-- Google Cloud Platform (GCP)
-- DigitalOcean
-- Railway
-- Hostinger VPS
-
-Additional platforms can be used as long as the required services are available.
-
----
-
-## What You'll Learn
-
-This section includes guides for:
-
-- Installing InteraOne
-- Configuring environment variables
-- Running services with Docker Compose
-- Configuring a reverse proxy
-- Deploying to cloud providers
-- Updating existing installations
-- Operating production deployments
-
----
-
-## Recommended Reading Order
-
-If you're deploying InteraOne for the first time, follow these guides in order:
-
-1. Architecture
-2. Installation
-3. Environment Variables
-4. Docker Compose
-5. Reverse Proxy
-6. Cloud Deployment
-7. Updating and Upgrading
-
----
-
-## Production Considerations
-
-Before deploying to production, make sure to:
-
-- Configure TLS/HTTPS.
-- Secure all secrets and API keys.
-- Use persistent storage for databases.
-- Schedule regular database backups.
-- Monitor service health and logs.
-- Keep InteraOne updated to the latest stable release.
-
----
-
-## Next Steps
-
-Continue with the **Architecture** guide to understand how InteraOne services communicate before deploying your own instance.
-
-```text
-```
+<Warning>
+  The development Compose file contains intentionally simple local credentials and broad development access. It is not a production template.
+</Warning>

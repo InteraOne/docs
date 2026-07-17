@@ -1,3 +1,39 @@
 ---
-title: "memory"
+title: "Conversation memory"
+description: "Understand recent message context, durable conversation summaries, cache behavior, tenant isolation, and privacy considerations."
+icon: "memory-stick"
 ---
+
+InteraOne uses layered memory so every reply has useful context without sending an unlimited transcript to the model.
+
+## Memory layers
+
+| Layer | Storage | Purpose |
+| --- | --- | --- |
+| Recent messages | MongoDB, loaded through the gateway | Bounded conversational continuity; controlled by `CHAT_HISTORY_LIMIT` |
+| Conversation gate cache | Redis | Fast status, assignment, escalation, channel, and policy checks |
+| Derived summary/memory | Conversation analysis and internal API | Longer-lived facts and condensed context |
+| Knowledge retrieval | Qdrant | Organization-authored reference material, not personal conversation history |
+| Agent-run steps | MongoDB/system events | Operational trace of tools, usage, timing, and errors |
+
+The `conversation_memory` tool gives the model an explicit way to request durable memory when the current prompt is insufficient. Memory access travels through the internal gateway API and remains scoped to the organization and conversation.
+
+## Context budget
+
+Increasing `CHAT_HISTORY_LIMIT` can improve continuity but increases latency, token usage, and privacy exposure. Prefer concise summaries and structured contact facts over sending a long raw transcript on every turn.
+
+<Info>
+  Knowledge and memory have different authority. Knowledge represents approved tenant content; conversation memory represents what participants said and may be incomplete or unverified.
+</Info>
+
+## Privacy guidance
+
+- Avoid storing secrets, full payment data, or authentication codes in memory.
+- OTP values are redacted from agent logging and should not be copied into summaries.
+- Apply retention policy to messages, agent runs, and observability events.
+- Restrict internal memory endpoints with `AI_TOOL_SECRET` and private networking.
+- Include organization context in every memory lookup and cache key.
+
+<Warning>
+  A model-generated summary is an interpretation, not a source of truth. Use verified contact fields and backend records for account-changing actions.
+</Warning>
