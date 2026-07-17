@@ -3822,5 +3822,10 @@
             }
         }
     },
-    "tags": []
+    "tags": [],
+    "navigation": {
+      "pages": [
+        "introduction"
+      ]
+    }
 }
