@@ -1,0 +1,109 @@
+# Introduction
+
+InteraOne is an open-source AI customer support platform built for developers.
+
+It enables teams to build AI-powered customer support experiences with complete control over their infrastructure, data, and AI providers. Unlike closed SaaS platforms, InteraOne can be self-hosted, customized, and extended to fit your own requirements.
+
+This documentation is intended for developers, contributors, and self-hosting teams.
+
+---
+
+## What is InteraOne?
+
+InteraOne provides the infrastructure required to build modern AI-powered customer support systems.
+
+Core capabilities include:
+
+- AI-powered conversations
+- Shared inbox for AI and human agents
+- Knowledge base with Retrieval-Augmented Generation (RAG)
+- Multiple communication channels
+- Human handoff
+- Ticket intelligence
+- Organization and team management
+- REST APIs
+- Self-hosted deployment
+
+---
+
+## Architecture
+
+InteraOne is composed of multiple services that work together.
+
+```text
+                    Client Channels
+     (Widget • Email • WhatsApp • Telegram)
+
+                         │
+                         ▼
+                    API Gateway
+                         │
+        ┌────────────────┼────────────────┐
+        ▼                ▼                ▼
+     Agent           Console          Worker
+        │                                 │
+        ▼                                 ▼
+   AI Providers                 Background Jobs
+        │
+        ▼
+MongoDB • Redis • Qdrant
+```
+
+Each service has a single responsibility, allowing InteraOne to remain modular and scalable.
+
+Learn more in the **Architecture** section.
+
+---
+
+## Documentation Structure
+
+This documentation is organized into the following sections:
+
+| Section | Description |
+| --- | --- |
+| Quickstart | Get InteraOne running locally |
+| Self Hosting | Deployment and infrastructure |
+| Architecture | Internal services and request flow |
+| AI | Agent pipeline, memory, model providers |
+| Knowledge Base | File ingestion, crawling, vector search |
+| Channels | Widget and messaging integrations |
+| Administration | Organizations, memberships, permissions |
+| API | REST API reference |
+| Contributing | Local development and contribution guide |
+
+---
+
+## Open Source
+
+InteraOne is open source and welcomes community contributions.
+
+You can contribute by:
+
+- Reporting bugs
+- Improving documentation
+- Submitting pull requests
+- Adding integrations
+- Building new AI tools
+- Improving performance
+
+---
+
+## Who is this documentation for?
+
+This documentation is intended for:
+
+- Backend developers
+- Frontend developers
+- DevOps engineers
+- Infrastructure engineers
+- AI engineers
+- Open source contributors
+- Teams self-hosting InteraOne
+
+It assumes basic familiarity with Docker, Git, REST APIs, and modern JavaScript/TypeScript development.
+
+---
+
+## Next Steps
+
+Continue with the **Quickstart** guide to install and run InteraOne locally.
