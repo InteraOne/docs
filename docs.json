@@ -1,44 +1,42 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Documentation",
+  "theme": "palm",
+  "name": "Interaone",
   "colors": {
-    "primary": "#0D9373"
+    "primary": "#845C6C"
   },
   "navigation": {
-    "groups": [
+    "groups": []
+  },
+  "logo": {
+    "light": "/images/222506196__4_-removebg-preview.png",
+    "dark": "/images/222506196(4).png"
+  },
+  "description": "The open-source, agentic alternative to Intercom and Zendesk. Build, scale, and automate customer support with RAG-powered intelligence, multiple LLM providers, and unified omnichannel communication",
+  "background": {
+    "decoration": "windows"
+  },
+  "fonts": {
+    "family": "Open Sans"
+  },
+  "navbar": {
+    "links": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "introduction",
-          "quickstart",
-          "installation"
-        ]
-      },
-      {
-        "group": "Core Concepts",
-        "pages": [
-          "core-concepts/architecture",
-          "core-concepts/monorepo-structure",
-          "core-concepts/realtime-chat"
-        ]
-      },
-      {
-        "group": "Development",
-        "pages": [
-          "development/setup",
-          "development/environment-variables",
-          "development/docker-services",
-          "development/scripts"
-        ]
-      },
-      {
-        "group": "Deployment",
-        "pages": [
-          "deployment/overview",
-          "deployment/web-app"
-        ]
+        "href": "https://app.interaone.app/auth/login",
+        "label": "Interaone"
       }
     ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://interaone.app",
+      "github": "https://github.com/InteraOne/InteraOne"
+    }
+  },
+  "thumbnails": {
+    "background": "/images/ChatGPTImageJul17,2026,05_06_03PM.png"
+  },
+  "api": {
+    "openapi": "docs.json"
   }
 }
