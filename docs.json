@@ -1,0 +1,41 @@
+{
+  "theme": "palm",
+  "name": "Interaone",
+  "description": "The open-source, agentic alternative to Intercom and Zendesk. Build, scale, and automate customer support with RAG-powered intelligence, multiple LLM providers, and unified omnichannel communication",
+  "colors": {
+    "primary": "#845C6C"
+  },
+  "logo": {
+    "light": "/images/222506196__4_-removebg-preview.png",
+    "dark": "/images/222506196(4).png"
+  },
+  "background": {
+    "decoration": "windows"
+  },
+  "navbar": {
+    "links": [
+      {
+        "href": "https://app.interaone.app/auth/login",
+        "label": "Interaone"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://interaone.app",
+      "github": "https://github.com/InteraOne/InteraOne"
+    }
+  },
+  "fonts": {
+    "family": "Open Sans"
+  },
+  "thumbnails": {
+    "background": "/images/ChatGPTImageJul17,2026,05_06_03PM.png"
+  },
+  "api": {
+    "openapi": "docs.json"
+  },
+  "navigation": {
+    "groups": []
+  }
+}
