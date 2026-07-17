@@ -1,7 +1,7 @@
 {
   "theme": "palm",
-  "name": "Interaone",
-  "description": "The open-source, agentic alternative to Intercom and Zendesk. Build, scale, and automate customer support with RAG-powered intelligence, multiple LLM providers, and unified omnichannel communication",
+  "name": "InteraOne",
+  "description": "Open-source AI customer support platform for developers.",
   "colors": {
     "primary": "#845C6C"
   },
@@ -15,8 +15,12 @@
   "navbar": {
     "links": [
       {
-        "href": "https://app.interaone.app/auth/login",
-        "label": "Interaone"
+        "href": "https://app.interaone.app",
+        "label": "Dashboard"
+      },
+      {
+        "href": "https://github.com/InteraOne/InteraOne",
+        "label": "GitHub"
       }
     ]
   },
@@ -36,6 +40,113 @@
     "openapi": "openapi.json"
   },
   "navigation": {
-    "groups": []
-  }
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Self Hosting",
+        "pages": [
+          "self-hosting/overview",
+          "self-hosting/architecture",
+          "self-hosting/installation",
+          "self-hosting/docker-compose",
+          "self-hosting/environment-variables",
+          "self-hosting/reverse-proxy-caddy",
+          "self-hosting/deploying-to-aws",
+          "self-hosting/deploying-to-gcp",
+          "self-hosting/deploying-to-railway",
+          "self-hosting/deploying-to-digitalocean",
+          "self-hosting/deploying-to-hostinger",
+          "self-hosting/updating-and-upgrading"
+        ]
+      },
+      {
+        "group": "Architecture",
+        "pages": [
+          "architecture/overview",
+          "architecture/gateway",
+          "architecture/console",
+          "architecture/launcher",
+          "architecture/agent",
+          "architecture/worker",
+          "architecture/database",
+          "architecture/redis",
+          "architecture/qdrant",
+          "architecture/request-flow"
+        ]
+      },
+      {
+        "group": "AI",
+        "pages": [
+          "ai/agent-pipeline",
+          "ai/model-providers",
+          "ai/memory",
+          "ai/tool-calling",
+          "ai/ticket-intelligence",
+          "ai/human-handoff",
+          "ai/observability"
+        ]
+      },
+      {
+        "group": "Knowledge Base",
+        "pages": [
+          "knowledge-base/overview",
+          "knowledge-base/ingesting-files",
+          "knowledge-base/ingesting-urls",
+          "knowledge-base/ingesting-faqs",
+          "knowledge-base/vector-search"
+        ]
+      },
+      {
+        "group": "Channels",
+        "pages": [
+          "channels/overview",
+          "channels/web-widget",
+          "channels/email",
+          "channels/whatsapp",
+          "channels/telegram",
+          "channels/qr-and-direct-links"
+        ]
+      },
+      {
+        "group": "Administration",
+        "pages": [
+          "administration/organizations",
+          "administration/memberships",
+          "administration/settings",
+          "administration/contact-verification"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/overview",
+          "api/authentication"
+        ]
+      },
+      {
+        "group": "Contributing",
+        "pages": [
+          "contributing/overview",
+          "contributing/local-development",
+          "contributing/project-structure",
+          "contributing/coding-standards",
+          "contributing/testing",
+          "contributing/pull-requests"
+        ]
+      },
+      {
+        "group": "Changelog",
+        "pages": [
+          "changelog"
+        ]
+      }
+    ]
+  },
+  "favicon": "/images/favicon.ico"
 }
