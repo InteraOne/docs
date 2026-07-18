@@ -36,16 +36,7 @@
     "appearance": "dark"
   },
   "navbar": {
-    "links": [
-      {
-        "href": "https://interaone.app",
-        "label": "Website"
-      },
-      {
-        "href": "https://github.com/InteraOne/InteraOne",
-        "label": "GitHub"
-      }
-    ],
+    "links": [],
     "primary": {
       "type": "button",
       "label": "Open dashboard",
