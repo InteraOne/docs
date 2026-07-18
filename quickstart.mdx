@@ -13,53 +13,63 @@ This path runs infrastructure in Docker and application services through Turbo. 
   The repository declares pnpm as its package manager. Do not use `npm install`; doing so creates a second lockfile and can resolve different dependency versions.
 </Note>
 
-<Steps>
-  <Step title="Clone the repository">
-    ```bash
-    git clone https://github.com/InteraOne/InteraOne.git
-    cd InteraOne
-    ```
-  </Step>
+## Requirements
 
-  <Step title="Check your machine">
-    ```bash
-    make verify
-    make check-docker
-    ```
+Before getting started, make sure you have the following installed:
 
-    The checks confirm Git, Node, pnpm, Docker, Compose, and the expected local ports.
-  </Step>
+- Docker and Docker Compose
+- Git
+- `make`
 
-  <Step title="Create local environment files">
-    ```bash
-    make copy-env
-    ```
+## 1. Fork the Repository
 
-    This copies each application's `.env.example` only when its `.env` does not already exist. Configure at least one LLM provider and one embedding provider in `apps/agent/.env`.
-  </Step>
+Fork the InteraOne repository to your GitHub account, then clone your fork.
 
-  <Step title="Start the full development environment">
-    ```bash
-    make all
-    ```
+```bash
+git clone https://github.com/<your-username>/InteraOne.git
+cd InteraOne
+```
 
-    The target installs dependencies, starts development infrastructure, builds and uploads the widget to MinIO, then starts the gateway, console, agent, and worker through Turbo. The launcher is deployed as an asset rather than kept in Turbo's dev process.
-  </Step>
+## 2. Start InteraOne
 
-  <Step title="Verify the system">
-    Open the console at {{localConsole}} and call the gateway health endpoint:
+Run a single command:
 
-    ```bash
-    curl http://localhost:3002/api/v1/health
-    ```
+```bash
+make all
+```
 
-    A healthy gateway returns `success: true`. Use `docker compose -f docker/docker-compose.dev.yml ps` to inspect infrastructure containers.
-  </Step>
-</Steps>
+That's it.
+
+The setup process will automatically:
+
+- Create all required `.env` files from the default templates.
+- Pull all required Docker images.
+- Install project dependencies.
+- Build the required services and assets.
+- Start the complete InteraOne development environment locally.
+
+## 3. Access InteraOne
+
+Once the setup finishes, InteraOne will be running locally.
+
+- **Console:** `http://localhost:3000`
+- **Gateway Health Check:**
+
+```bash
+curl http://localhost:3002/api/v1/health
+```
+
+If everything is running correctly, the gateway will return:
+
+```json
+{
+  "success": true
+}
+```
+
+You now have a complete local InteraOne environment running with all services ready for development.
 
 ## Local service addresses
-
-<ServicePorts />
 
 ## Useful development commands
 
@@ -78,18 +88,19 @@ This path runs infrastructure in Docker and application services through Turbo. 
   <Accordion title="A required port is already in use" icon="circle-alert">
     Run `make check-ports`, stop the conflicting process, and retry. Changing a port requires updating every dependent application URL, not only the container mapping.
   </Accordion>
+
   <Accordion title="The AI service starts but replies fail" icon="bot">
     Confirm `LLM_PROVIDER` and `EMBEDDING_PROVIDER` have matching credentials and model settings. Then check the agent log and its health endpoint on port `4010`.
   </Accordion>
+
   <Accordion title="The widget does not appear" icon="message-circle">
     Run `make widget-deploy`, confirm the object exists in MinIO, verify the widget public key and domain, and check `VITE_WIDGET_URL` plus the launcher's API/CDN targets.
   </Accordion>
+
   <Accordion title="Email does not arrive" icon="mail">
     Development defaults to MailHog. Verify the worker is running, inspect the `platform-email` queue, and open the MailHog UI on port `8025`.
   </Accordion>
 </AccordionGroup>
-
-<SecurityNote />
 
 ## Next steps
 
@@ -97,12 +108,15 @@ This path runs infrastructure in Docker and application services through Turbo. 
   <Card title="Add knowledge" icon="database-zap" href="/knowledge-base/overview">
     Index text, documents, URLs, and FAQs for retrieval.
   </Card>
+
   <Card title="Install the widget" icon="code-xml" href="/channels/web-widget">
     Configure appearance, behavior, security, and the embed script.
   </Card>
+
   <Card title="Read the request flow" icon="workflow" href="/architecture/request-flow">
     See how messages move through Socket.IO, Redis, AI, and persistence.
   </Card>
+
   <Card title="Prepare production" icon="shield-check" href="/self-hosting/overview">
     Move from development defaults to a hardened deployment.
   </Card>
