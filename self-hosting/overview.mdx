@@ -1,7 +1,7 @@
 ---
 title: "Self-hosting overview"
-sidebarTitle: "Overview"
 description: "Plan a secure InteraOne deployment, understand supported deployment shapes, and follow the production readiness checklist."
+sidebarTitle: "Overview"
 icon: "server"
 ---
 
@@ -14,12 +14,15 @@ InteraOne ships a production Docker Compose stack with Caddy, the five applicati
   <Card title="Deployment architecture" icon="network" href="/self-hosting/architecture">
     Understand public entry points, private dependencies, and stateful volumes.
   </Card>
+
   <Card title="Installation" icon="download" href="/self-hosting/installation">
     Prepare a Linux host and launch the published images.
   </Card>
+
   <Card title="Environment variables" icon="key-round" href="/self-hosting/environment-variables">
     Configure shared secrets, URLs, providers, storage, and runtime behavior.
   </Card>
+
   <Card title="Caddy" icon="shield-check" href="/self-hosting/reverse-proxy-caddy">
     Route API, web, CDN, logs, WebSockets, and automatic TLS.
   </Card>
@@ -33,9 +36,6 @@ InteraOne ships a production Docker Compose stack with Caddy, the five applicati
   </Tab>
   <Tab title="Managed data services">
     Keep application containers on your host while pointing MongoDB, Redis, object storage, or Qdrant at managed equivalents. Validate protocol compatibility and network latency before production use.
-  </Tab>
-  <Tab title="Orchestrated">
-    Translate services, health checks, volumes, and dependencies into your orchestrator. The repository does not currently ship first-party Kubernetes manifests, so your platform team owns that translation.
   </Tab>
 </Tabs>
 
@@ -54,8 +54,6 @@ InteraOne ships a production Docker Compose stack with Caddy, the five applicati
 ## Production readiness
 
 <ProductionChecklist />
-
-<SecurityNote />
 
 ## Recommended reading order
 
