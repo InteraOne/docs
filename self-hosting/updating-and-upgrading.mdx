@@ -5,41 +5,158 @@ description: "Upgrade InteraOne safely with release review, coordinated backups,
 icon: "refresh-cw"
 ---
 
-Treat InteraOne as a coordinated application release: gateway, console, launcher, agent, and worker can share queue payloads, API contracts, database fields, and environment expectations.
+Keeping InteraOne up to date ensures you receive the latest features, performance improvements, security patches, and bug fixes.
+
+<Warning>
+  Always back up your production data before performing an upgrade.
+</Warning>
+
+## Upgrade Process
 
 <Steps>
-  <Step title="Read and pin the release">
-    Review the changelog and code changes, especially schema/index, queue, environment, OpenAPI, and deployment changes. Record the target tag or image digest for every service.
+  <Step title="Backup your data">
+    Before upgrading, back up all persistent services:
+
+    - MongoDB
+    - MinIO
+    - Qdrant
+    - Redis (recommended)
+
+    This allows you to roll back safely if necessary.
   </Step>
-  <Step title="Back up coordinated state">
-    Capture MongoDB, MinIO, Redis where recovery requires it, Qdrant or a plan to reindex, Caddy state, and the exact environment/configuration. Verify the backup before continuing.
-  </Step>
-  <Step title="Test in staging">
-    Restore representative data, deploy the release, run build/API/widget/channel/AI/ingestion tests, and observe queue compatibility.
-  </Step>
-  <Step title="Pull and reconcile">
+  <Step title="Pull the latest release">
+    Navigate to your installation directory.
+
     ```bash
-    docker compose --env-file docker/.env -f docker/docker-compose.yml pull
-    docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
+    cd InteraOne
+    
+    git pull
+    ```
+
+    Or upgrade to a specific release.
+
+    ```bash
+    git fetch --tags
+    git checkout <release-tag>
     ```
   </Step>
-  <Step title="Verify and observe">
-    Check container health, gateway health, login, tenant switching, widget assets, Socket.IO, one AI response, one background email, and queue failures. Monitor beyond the immediate deploy window.
+  <Step title="Review new environment variables">
+    Some releases introduce new configuration values.
+
+    Compare your current configuration with the latest:
+
+    - `docker/.env.example`
+    - `apps/*/.env.example`
+
+    Add any newly introduced variables to your existing configuration.
+
+    <Note>
+      Never overwrite your existing `.env` files. Merge new variables into your current configuration instead.
+    </Note>
+  </Step>
+  <Step title="Pull the latest Docker images">
+    ```bash
+    cd docker
+    
+    docker compose pull
+    ```
+  </Step>
+  <Step title="Restart InteraOne">
+    ```bash
+    docker compose up -d
+    ```
+
+    Docker Compose recreates only the services that have changed while preserving your persistent data.
+  </Step>
+  <Step title="Verify the deployment">
+    Check running containers.
+
+    ```bash
+    docker compose ps
+    ```
+
+    Verify the Gateway.
+
+    ```bash
+    curl https://YOUR_API_HOST/api/v1/health
+    ```
+
+    Expected response:
+
+    ```json
+    {
+      "success": true,
+      "message": "API is healthy",
+      "timestamp": "2026-07-18T05:21:32.499Z"
+    }
+    ```
   </Step>
 </Steps>
 
+---
+
+## Post-upgrade Checklist
+
+<Check>
+  - I can access the Console.
+  - Users can log in successfully.
+  - The AI Agent responds correctly.
+  - The Web Widget loads normally.
+  - Background workers are processing jobs.
+  - File uploads work correctly.
+  - Knowledge search returns results.
+</Check>
+
+---
+
 ## Rollback
 
-A safe rollback requires previous immutable image tags and data that remains compatible. If a release performed an irreversible migration or vector rebuild, restoring old containers alone may not work. Document the data rollback path before deployment.
+If an upgrade does not behave as expected:
 
-<Warning>
-  Avoid `latest` in production. A restart can otherwise pull a different build from the one you tested, making incidents and rollback much harder to reproduce.
-</Warning>
+1. Restore your backups.
+2. Checkout the previous release.
 
-## After upgrading
+```bash
+git checkout <previous-release-tag>
+```
 
-- Rebuild/redeploy launcher assets when launcher or public URL settings change.
-- Reindex knowledge after an embedding model/dimension change.
-- Rotate secrets if the release addresses credential exposure.
-- Update monitoring and runbooks for new queues, routes, or health checks.
-- Update this documentation and `openapi.json` with the same release.
+3. Restart the platform.
+
+```bash
+cd docker
+
+docker compose up -d
+```
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Back Up First" icon="database">
+    Always create backups before upgrading production deployments.
+  </Card>
+
+  <Card title="Read Release Notes" icon="book-open">
+    Review release notes for breaking changes and migration steps.
+  </Card>
+
+  <Card title="Upgrade Gradually" icon="arrow-up">
+    Upgrade one release at a time instead of skipping multiple major versions.
+  </Card>
+
+  <Card title="Test First" icon="flask-conical">
+    Validate upgrades in a staging environment before updating production.
+  </Card>
+</CardGroup>
+
+---
+
+## Need Help?
+
+If you encounter issues during an upgrade:
+
+- Review the  container logs in **Dozzle**.
+- Verify your environment variables.
+- Check the Gateway health endpoint.
+- Open a GitHub issue if the problem persists.

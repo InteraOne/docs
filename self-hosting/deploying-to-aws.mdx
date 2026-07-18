@@ -5,26 +5,226 @@ description: "Deploy InteraOne's Compose stack to an EC2 instance with DNS, secu
 icon: "cloud"
 ---
 
-The simplest AWS deployment is one EC2 Linux instance running the production Compose stack. For higher availability, externalize MongoDB, Redis, object storage, and vector storage before adding stateless replicas.
+InteraOne can be deployed on AWS in just a few minutes using a single EC2 instance and Docker Compose. This guide walks through provisioning the infrastructure, configuring DNS, installing InteraOne, and verifying your deployment.
 
-<Steps>
-  <Step title="Create the instance">
-    Choose a current Ubuntu or Amazon Linux image, attach an encrypted volume sized for databases and uploads, require an SSH key, and enable detailed monitoring as needed.
-  </Step>
-  <Step title="Create a security group">
-    Allow `80` and `443` publicly. Restrict `22` to trusted administrative sources. Do not allow MongoDB, Redis, MinIO, Qdrant, gateway, or console ports from the internet. AWS documents security groups as the instance's virtual firewall in its [EC2 guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html).
-  </Step>
-  <Step title="Assign DNS">
-    Attach a stable public address if required and point the API, web, CDN, and logs records in Route 53 or your DNS provider.
-  </Step>
-  <Step title="Install and deploy">
-    Install Docker/Compose, clone a release, complete `docker/.env`, validate the Compose model, and start the stack using the [installation guide](/self-hosting/installation).
-  </Step>
-  <Step title="Back up and monitor">
-    Snapshot the host volume and take application-consistent MongoDB/object-storage backups. Send host/container metrics and logs to your approved monitoring destination.
-  </Step>
-</Steps>
+## Architecture
 
-<Tip>
-  If you use SES for email, prefer an instance role or narrowly scoped workload credentials over long-lived access keys where the adapter/deployment supports the AWS credential chain.
-</Tip>
+The reference deployment consists of:
+
+- Amazon EC2
+- Docker Compose
+- Caddy (Automatic HTTPS)
+- MongoDB
+- Redis
+- MinIO
+- Qdrant
+- Gateway
+- AI Agent
+- Worker
+- Console
+
+Everything runs on a single EC2 instance while remaining modular, allowing you to migrate individual services later if needed.
+
+---
+
+# Prerequisites
+
+Before starting, you'll need:
+
+- An AWS Account
+- A registered domain name
+- Route53 (or any DNS provider)
+- An AI provider (Gemini, OpenAI, Bedrock, Ollama, etc.)
+
+---
+
+# Step 1 — Launch an EC2 Instance
+
+Recommended minimum:
+
+| Resource | Recommended |
+| --- | --- |
+| OS | Ubuntu 24.04 LTS |
+| Instance | t3.large (minimum) |
+| vCPUs | 2\+ |
+| Memory | 8 GB |
+| Storage | 40–80 GB SSD |
+
+Assign an Elastic IP so your server IP remains static.
+
+---
+
+# Step 2 — Configure Security Groups
+
+Allow inbound traffic:
+
+| Port | Purpose |
+| --- | --- |
+| 22 | SSH |
+| 80 | HTTP |
+| 443 | HTTPS |
+
+Do **not** expose MongoDB, Redis, MinIO, or Qdrant directly to the internet.
+
+---
+
+# Step 3 — Configure DNS
+
+Create DNS records pointing to your EC2 Elastic IP.
+
+| Record | Example |
+| --- | --- |
+| API | api.example.com |
+| Console | app.example.com |
+| CDN | cdn.example.com |
+| Logs | logs.example.com |
+
+Caddy will automatically obtain SSL certificates once DNS propagation is complete.
+
+---
+
+# Step 4 — Connect to the Server
+
+```bash
+ssh ubuntu@YOUR_SERVER_IP
+```
+
+---
+
+# Step 5 — Clone InteraOne
+
+```bash
+git clone https://github.com/InteraOne/InteraOne.git
+cd InteraOne
+```
+
+---
+
+# Step 6 — Install InteraOne
+
+Run:
+
+```bash
+sudo ./install.sh
+```
+
+The installer will:
+
+- Install Docker (if necessary)
+- Install Docker Compose
+- Ask for your deployment configuration
+- Generate secure passwords
+- Create all production `.env` files
+- Pull Docker images
+- Start every InteraOne service
+
+---
+
+# Step 7 — Installer Questions
+
+During installation you'll configure:
+
+## Domains
+
+- API Domain
+- Console Domain
+- CDN Domain
+- Log Viewer Domain
+
+## Email Provider
+
+Choose one:
+
+- Amazon SES
+- MailHog
+- Disabled
+
+## AI Provider
+
+Choose one:
+
+- Google Gemini
+- OpenAI
+- AWS Bedrock
+- Hugging Face
+- Ollama
+
+Depending on the provider you'll also provide:
+
+- API Keys
+- Model
+- Embedding Model
+- AWS Credentials (if applicable)
+
+---
+
+# Step 8 — Amazon SES (Optional)
+
+If you use Amazon SES:
+
+- Verify your sender domain
+- Create an IAM user
+- Configure SES credentials
+- Configure an SNS Topic
+- Enable Bounce, Complaint, and Delivery notifications
+
+InteraOne uses these notifications to process email events.
+
+---
+
+# Step 9 — Verify the Deployment
+
+Check the running services:
+
+```bash
+docker compose ps
+```
+
+Verify the Gateway:
+
+```bash
+curl https://api.example.com/api/v1/health
+```
+
+Expected response:
+
+```json
+{
+  "success": true,
+  "message": "API is healthy",
+  "timestamp": "2026-07-18T05:21:32.499Z"
+}
+```
+
+Open your Console:
+
+```text
+https://app.example.com
+```
+
+Create your first organization, configure an AI provider, and begin using InteraOne.
+
+---
+
+# Backups
+
+The following services contain persistent data and should be backed up regularly:
+
+- MongoDB
+- MinIO
+- Redis
+- Qdrant
+
+Store backups in Amazon S3 and automate them using scheduled jobs.
+
+---
+
+# Next Steps
+
+- Configure your AI provider
+- Create your first knowledge base
+- Install the Web Widget
+- Configure email
+- Set up automated backups
+- Enable monitoring and alerts
+- Review the Production Architecture guide

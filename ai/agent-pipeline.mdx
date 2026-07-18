@@ -29,12 +29,11 @@ flowchart TD
   <Accordion title="Conversation state" icon="door-closed">
     Jobs are skipped when the conversation is already closed, escalated, or assigned to a person. This protects against delayed queue work producing an unwanted answer.
   </Accordion>
-  <Accordion title="AI and subscription state" icon="badge-check">
-    If AI is disabled or the subscription is expired, the pipeline can escalate to a human when widget/channel policy allows fallback.
-  </Accordion>
+
   <Accordion title="Email OTP" icon="mail-check">
     A six-digit response is checked against the active contact-verification flow. Codes are redacted from logs and successful identity context is added to the prompt.
   </Accordion>
+
   <Accordion title="FAQ fast path" icon="zap">
     Question-like text is embedded and searched against tenant FAQ vectors. Matches at or above `0.85` bypass the model and return the stored answer.
   </Accordion>

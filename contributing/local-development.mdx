@@ -6,56 +6,148 @@ icon: "laptop"
 
 import ServicePorts from "/snippets/service-ports.mdx";
 
-Use Node {{nodeVersion}}, {{packageManager}}, Docker/Compose, Git, and Make.
+## 1. Fork & Clone
 
-<Steps>
-  <Step title="Install and configure">
+Fork the repository to your GitHub account, then clone it.
+
+```bash
+git clone https://github.com/<your-username>/InteraOne.git
+cd InteraOne
+```
+
+---
+
+## 2. Start InteraOne
+
+Run:
+
+```bash
+make all
+```
+
+This command automatically:
+
+- Creates missing `.env` files from their `.env.example` templates
+- Installs all project dependencies
+- Pulls the required Docker images
+- Starts the development infrastructure
+- Builds the web widget
+- Uploads the widget to the local MinIO instance
+- Starts all InteraOne services
+
+Once the setup completes, the entire InteraOne platform will be running locally.
+
+<Note>
+  **Windows users:** InteraOne currently requires **WSL (Windows Subsystem for Linux)**. Run all setup commands from your WSL terminal rather than Command Prompt or PowerShell.
+</Note>
+
+---
+
+## 3. Configure your AI provider
+
+Open:
+
+```text
+apps/agent/.env
+```
+
+Configure at least:
+
+- `LLM_PROVIDER`
+- `EMBEDDING_PROVIDER`
+- Your provider API key(s)
+
+InteraOne supports multiple AI providers. Without these values, the AI Agent will start but won't be able to generate responses.
+
+---
+
+## 4. Verify the installation
+
+Open the Console:
+
+```text
+http://localhost:3000
+```
+
+Check the Gateway health endpoint:
+
+```bash
+curl http://localhost:3002/api/v1/health
+```
+
+A healthy response looks like:
+
+```json
+{
+  "success": true,
+  "message": "API is healthy",
+  "timestamp": "2026-07-18T05:21:32.499Z"
+}
+```
+
+---
+
+## Local Development Notes
+
+- Development emails are captured by **MailHog** instead of being sent to real email addresses.
+- Whenever you make changes to the Web Widget, redeploy it locally:
+
+```bash
+make widget-deploy
+```
+
+---
+
+## Useful Commands
+
+| Command | Description |
+| :-- | :-- |
+| `make all` | Start the complete development environment |
+| `make dev` | Run application services through Turbo |
+| `make docker-start` | Start only the Docker infrastructure |
+| `make docker-stop` | Stop Docker infrastructure |
+| `make widget-deploy` | Rebuild and upload the widget to local MinIO |
+| `make build` | Build every package |
+| `make lint` | Run linting |
+| `make check-types` | Run TypeScript checks |
+| `make docker-logs` | View Docker container logs |
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="A required port is already in use" icon="circle-alert">
+    Run:
+
     ```bash
-    pnpm install
-    make copy-env
+    make check-ports
     ```
 
-    Fill the generated app `.env` files, including one working LLM/embedding provider pair.
-  </Step>
-  <Step title="Start infrastructure">
-    ```bash
-    make docker-start
+    Stop the conflicting process and try again.
+  </Accordion>
+
+  <Accordion title="The AI Agent starts but doesn't respond" icon="bot">
+    Verify that your AI provider, embedding provider, and API keys are correctly configured in:
+
+    ```text
+    apps/agent/.env
     ```
-  </Step>
-  <Step title="Deploy the widget asset">
+  </Accordion>
+
+  <Accordion title="Widget changes are not visible" icon="message-circle">
+    After modifying the widget source, rebuild and upload it:
+
     ```bash
     make widget-deploy
     ```
-  </Step>
-  <Step title="Start application processes">
-    ```bash
-    make dev
-    ```
 
-    The root dev task excludes launcher because its bundle is uploaded to MinIO.
-  </Step>
-</Steps>
+    Then refresh your browser.
+  </Accordion>
 
-## Run a focused package
+  <Accordion title="Emails are not being delivered" icon="mail">
+    During local development, InteraOne uses **MailHog** instead of sending real emails.
 
-```bash
-pnpm --filter @InteraOne/gateway dev
-pnpm --filter @InteraOne/console dev
-pnpm --filter @InteraOne/agent dev
-pnpm --filter @InteraOne/worker dev
-```
-
-Package names and available scripts are defined in each `package.json`; not every package implements every root Turbo task.
-
-## Local addresses
-
-<ServicePorts />
-
-## Debug loop
-
-- Gateway: call `/api/v1/health`, inspect request ID and domain logs.
-- Queue work: inspect gateway producer and agent/worker consumer logs together.
-- Email: open MailHog and check `platform-email` failures.
-- Storage: inspect MinIO objects and presigned URL hostname reachability.
-- Retrieval: use agent vector inspection scripts and confirm source status/counts.
-- Widget: check script, iframe, network, `postMessage` origins, and Socket.IO frames in browser tools.
+    Open the MailHog UI to inspect outgoing emails.
+  </Accordion>
+</AccordionGroup>

@@ -13,7 +13,6 @@ icon: "cpu"
 | --- | --- | --- |
 | `platform-email` | Sends through MailHog, AWS SES, or a disabled adapter | Increase replicas/concurrency within provider limits |
 | `platform-analytics` | Buffers events and bulk-inserts them into `SystemEvent` | Batches at 25 events or every 15 seconds |
-| `subscription-expiry` | Reconciles past-due and period-ended subscriptions | Enterprise-only; hourly scheduler, concurrency 1 |
 
 The subscription worker is not started when enterprise mode is disabled. This prevents open-source deployments from executing licensed billing behavior accidentally.
 

@@ -202,11 +202,7 @@
                 "group": "Cloud deployment",
                 "icon": "cloud",
                 "pages": [
-                  "self-hosting/deploying-to-aws",
-                  "self-hosting/deploying-to-gcp",
-                  "self-hosting/deploying-to-railway",
-                  "self-hosting/deploying-to-digitalocean",
-                  "self-hosting/deploying-to-hostinger"
+                  "self-hosting/deploying-to-aws"
                 ]
               },
               "self-hosting/updating-and-upgrading"
