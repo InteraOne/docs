@@ -4,120 +4,170 @@ description: "Run the InteraOne development stack locally and verify every appli
 icon: "rocket"
 ---
 
-import ServicePorts from "/snippets/service-ports.mdx";
-import SecurityNote from "/snippets/security-note.mdx";
+## 1. Fork & Clone
 
-This path runs infrastructure in Docker and application services through Turbo. InteraOne requires Node {{nodeVersion}}, {{packageManager}}, Git, Docker Engine, Docker Compose, and Make.
-
-<Note>
-  The repository declares pnpm as its package manager. Do not use `npm install`; doing so creates a second lockfile and can resolve different dependency versions.
-</Note>
-
-## Requirements
-
-Before getting started, make sure you have the following installed:
-
-- Docker and Docker Compose
-- Git
-- `make`
-
-## 1. Fork the Repository
-
-Fork the InteraOne repository to your GitHub account, then clone your fork.
+Fork the repository to your GitHub account, then clone it.
 
 ```bash
 git clone https://github.com/<your-username>/InteraOne.git
 cd InteraOne
 ```
 
+---
+
 ## 2. Start InteraOne
 
-Run a single command:
+Run:
 
 ```bash
 make all
 ```
 
-That's it.
+This command automatically:
 
-The setup process will automatically:
+- Creates missing `.env` files from their `.env.example` templates
+- Installs all project dependencies
+- Pulls the required Docker images
+- Starts the development infrastructure
+- Builds the web widget
+- Uploads the widget to the local MinIO instance
+- Starts all InteraOne services
 
-- Create all required `.env` files from the default templates.
-- Pull all required Docker images.
-- Install project dependencies.
-- Build the required services and assets.
-- Start the complete InteraOne development environment locally.
+Once the setup completes, the entire InteraOne platform will be running locally.
 
-## 3. Access InteraOne
+<Note>
+  **Windows users:** InteraOne currently requires **WSL (Windows Subsystem for Linux)**. Run all setup commands from your WSL terminal rather than Command Prompt or PowerShell.
+</Note>
 
-Once the setup finishes, InteraOne will be running locally.
+---
 
-- **Console:** `http://localhost:3000`
-- **Gateway Health Check:**
+## 3. Configure your AI provider
+
+Open:
+
+```text
+apps/agent/.env
+```
+
+Configure at least:
+
+- `LLM_PROVIDER`
+- `EMBEDDING_PROVIDER`
+- Your provider API key(s)
+
+InteraOne supports multiple AI providers. Without these values, the AI Agent will start but won't be able to generate responses.
+
+---
+
+## 4. Verify the installation
+
+Open the Console:
+
+```text
+http://localhost:3000
+```
+
+Check the Gateway health endpoint:
 
 ```bash
 curl http://localhost:3002/api/v1/health
 ```
 
-If everything is running correctly, the gateway will return:
+A healthy response looks like:
 
 ```json
 {
-  "success": true
+  "success": true,
+  "message": "API is healthy",
+  "timestamp": "2026-07-18T05:21:32.499Z"
 }
 ```
 
-You now have a complete local InteraOne environment running with all services ready for development.
+---
 
-## Local service addresses
+## Local Development Notes
 
-## Useful development commands
+- Development emails are captured by **MailHog** instead of being sent to real email addresses.
+- Whenever you make changes to the Web Widget, redeploy it locally:
 
-| Command | Effect |
+```bash
+make widget-deploy
+```
+
+---
+
+## Useful Commands
+
+| Command | Description |
 | --- | --- |
-| `make dev` | Run application development processes through Turbo |
-| `make docker-start` | Start development infrastructure only |
-| `make docker-stop` | Stop development infrastructure without deleting volumes |
-| `make widget-deploy` | Build and upload the widget bundle to local MinIO |
-| `make build` | Build all packages with a build task |
-| `make lint` | Run package lint tasks |
-| `make check-types` | Run package type checks |
-| `make docker-logs` | Follow development container logs |
+| `make all` | Start the complete development environment |
+| `make dev` | Run application services through Turbo |
+| `make docker-start` | Start only the Docker infrastructure |
+| `make docker-stop` | Stop Docker infrastructure |
+| `make widget-deploy` | Rebuild and upload the widget to local MinIO |
+| `make build` | Build every package |
+| `make lint` | Run linting |
+| `make check-types` | Run TypeScript checks |
+| `make docker-logs` | View Docker container logs |
+
+---
+
+## Troubleshooting
 
 <AccordionGroup>
   <Accordion title="A required port is already in use" icon="circle-alert">
-    Run `make check-ports`, stop the conflicting process, and retry. Changing a port requires updating every dependent application URL, not only the container mapping.
+    Run:
+
+    ```bash
+    make check-ports
+    ```
+
+    Stop the conflicting process and try again.
   </Accordion>
 
-  <Accordion title="The AI service starts but replies fail" icon="bot">
-    Confirm `LLM_PROVIDER` and `EMBEDDING_PROVIDER` have matching credentials and model settings. Then check the agent log and its health endpoint on port `4010`.
+  <Accordion title="The AI Agent starts but doesn't respond" icon="bot">
+    Verify that your AI provider, embedding provider, and API keys are correctly configured in:
+
+    ```text
+    apps/agent/.env
+    ```
   </Accordion>
 
-  <Accordion title="The widget does not appear" icon="message-circle">
-    Run `make widget-deploy`, confirm the object exists in MinIO, verify the widget public key and domain, and check `VITE_WIDGET_URL` plus the launcher's API/CDN targets.
+  <Accordion title="Widget changes are not visible" icon="message-circle">
+    After modifying the widget source, rebuild and upload it:
+
+    ```bash
+    make widget-deploy
+    ```
+
+    Then refresh your browser.
   </Accordion>
 
-  <Accordion title="Email does not arrive" icon="mail">
-    Development defaults to MailHog. Verify the worker is running, inspect the `platform-email` queue, and open the MailHog UI on port `8025`.
+  <Accordion title="Emails are not being delivered" icon="mail">
+    During local development, InteraOne uses **MailHog** instead of sending real emails.
+
+    Open the MailHog UI to inspect outgoing emails.
   </Accordion>
 </AccordionGroup>
 
-## Next steps
+---
+
+## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Add knowledge" icon="database-zap" href="/knowledge-base/overview">
-    Index text, documents, URLs, and FAQs for retrieval.
+  <Card title="Knowledge Base" icon="database-zap" href="/knowledge-base/overview">
+    Import documents, websites, FAQs, and other knowledge sources.
   </Card>
 
-  <Card title="Install the widget" icon="code-xml" href="/channels/web-widget">
-    Configure appearance, behavior, security, and the embed script.
+  <Card title="Web Widget" icon="code-xml" href="/channels/web-widget">
+    Customize and embed the InteraOne widget into your website.
   </Card>
 
-  <Card title="Read the request flow" icon="workflow" href="/architecture/request-flow">
-    See how messages move through Socket.IO, Redis, AI, and persistence.
+  <Card title="Architecture" icon="workflow" href="/architecture/request-flow">
+    Understand how messages flow through the Gateway, Queues, AI Agent, and Storage.
   </Card>
 
-  <Card title="Prepare production" icon="shield-check" href="/self-hosting/overview">
-    Move from development defaults to a hardened deployment.
+  <Card title="Production Deployment" icon="shield-check" href="/self-hosting/overview">
+    Deploy InteraOne securely in your own production environment.
   </Card>
 </CardGroup>
