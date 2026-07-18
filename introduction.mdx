@@ -1,24 +1,29 @@
 ---
-title: "InteraOne documentation"
-sidebarTitle: "Introduction"
+title: "InteraOne"
 description: "Learn what InteraOne is, what it includes, and how its agentic customer-support architecture fits together."
+sidebarTitle: "Introduction"
 icon: "house"
 ---
 
 InteraOne is an open-source, multi-tenant customer-support platform that combines a shared inbox, tickets, contacts, knowledge retrieval, an embeddable widget, messaging channels, and AI agents in one deployable system.
 
+Our mission is to unify every customer communication channel with a single shared AI brain that businesses fully own and control. We empower organizations to build, self-host, and scale intelligent support without vendor lock-in.
+
 <CardGroup cols={2}>
   <Card title="Run it locally" icon="rocket" href="/quickstart">
     Start the complete development stack with pnpm, Docker, and one Make target.
   </Card>
+
   <Card title="Self-host in production" icon="server" href="/self-hosting/overview">
-    Deploy the published services behind Caddy with persistent infrastructure.
+    Deploy InteraOne to Production with a One-Click Server Setup
   </Card>
+
   <Card title="Understand the architecture" icon="blocks" href="/architecture/overview">
     Follow requests across the gateway, queues, AI agent, worker, and data stores.
   </Card>
-  <Card title="Explore the API" icon="braces" href="/api-reference/overview">
-    Use the generated interactive reference for the gateway's REST endpoints.
+
+  <Card title="Explore the Agent" icon="brain" href="/ai/agent-pipeline">
+    Understand how a single shared brain is decoupled to handle inbound and outbound communication across all channels.
   </Card>
 </CardGroup>
 
@@ -28,9 +33,11 @@ InteraOne is an open-source, multi-tenant customer-support platform that combine
   <Card title="AI assistance" icon="bot">
     Provider routing, streaming replies, RAG, tools, agent assist, and human handoff.
   </Card>
+
   <Card title="Support operations" icon="inbox">
     Conversations, assignment, contacts, tickets, templates, notifications, and analytics.
   </Card>
+
   <Card title="Customer channels" icon="messages-square">
     Web widget, email, WhatsApp, Telegram, QR entry points, and direct links.
   </Card>
@@ -40,17 +47,56 @@ InteraOne is an open-source, multi-tenant customer-support platform that combine
 
 ```mermaid
 flowchart LR
-  Visitor[Customer channels] --> Gateway[Gateway API + Socket.IO]
-  Console[Operator console] --> Gateway
-  Gateway --> Mongo[(MongoDB)]
-  Gateway <--> Redis[(Redis)]
-  Gateway --> MinIO[(MinIO)]
-  Redis --> Agent[AI agent]
-  Agent --> Providers[LLM and embedding providers]
-  Agent <--> Qdrant[(Qdrant)]
-  Agent --> Gateway
-  Redis --> Worker[Platform worker]
-  Worker --> Mongo
+    %% =========================
+    %% Inbound Channels
+    %% =========================
+    subgraph Channels["Communication Channels"]
+        Web[Embeeded Agent]
+        WhatsApp[WhatsApp]
+        Telegram[Telegram]
+        Email[Email]
+    end
+
+    %% =========================
+    %% Gateway
+    %% =========================
+    Gateway[Gateway + WebSocket]
+
+    Web --> Gateway
+    WhatsApp --> Gateway
+    Telegram --> Gateway
+    Email --> Gateway
+  
+
+    %% =========================
+    %% Infrastructure
+    %% =========================
+    Mongo[(MongoDB)]
+    Redis[(Redis)]
+    MinIO[(MinIO)]
+
+    Gateway --- Mongo
+    Gateway --- Redis
+    Gateway --- MinIO
+
+    %% =========================
+    %% Processing Pipeline
+    %% =========================
+    Gateway --> InQueue[[Inbound Queue]]
+
+    InQueue --> Agent[Shared AI Agent]
+
+    Agent --> Webhook[Webhook Engine]
+
+    Webhook --> Outbound[Outbound Delivery]
+
+    %% =========================
+    %% Outbound Channels
+    %% =========================
+    Outbound --> WebOut[Embedded Agent]
+    Outbound --> WhatsAppOut[WhatsApp]
+    Outbound --> TelegramOut[Telegram]
+    Outbound --> EmailOut[Email]
 ```
 
 The repository is a pnpm/Turborepo monorepo. Its five application packages have deliberately separate responsibilities:
@@ -58,10 +104,10 @@ The repository is a pnpm/Turborepo monorepo. Its five application packages have 
 | Application | Responsibility |
 | --- | --- |
 | `apps/gateway` | Express REST API, Socket.IO, authorization, domain modules, storage, and queue producers/consumers |
-| `apps/console` | Vite + React operator dashboard for conversations, tickets, contacts, knowledge, channels, widgets, and settings |
+| `apps/console` | Vite \+ React operator dashboard for conversations, tickets, contacts, knowledge, channels, widgets, and settings |
 | `apps/launcher` | Iframe-isolated browser widget loader and widget UI bundle |
 | `apps/agent` | AI reply, ingestion, analysis, assist, tool execution, model routing, and vector retrieval |
-| `apps/worker` | Email delivery, analytics persistence, and licensed subscription-expiry jobs |
+| `apps/worker` | Email delivery, analytics persistence, any background processing |
 
 <Info>
   The source repository contains an open-core `ee/` area. Features loaded from it are governed by `ee/LICENSE` and runtime entitlement checks; review that license before commercial use.
@@ -78,9 +124,6 @@ The repository is a pnpm/Turborepo monorepo. Its five application packages have 
   </Tab>
   <Tab title="Contribute">
     Read the [contributor overview](/contributing/overview), run the focused checks for the package you change, and open a scoped pull request.
-  </Tab>
-  <Tab title="Integrate">
-    Review [API authentication](/api-reference/authentication) and use the OpenAPI-generated endpoint pages and request playground.
   </Tab>
 </Tabs>
 
