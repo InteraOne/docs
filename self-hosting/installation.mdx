@@ -1,56 +1,236 @@
 ---
 title: "Production installation"
 sidebarTitle: "Installation"
-description: "Install InteraOne on a Linux host with Docker Compose, DNS, production secrets, health checks, and a first-login test."
+description: "Deploy InteraOne on your own infrastructure using Docker Compose."
 icon: "download"
 ---
 
-import SecurityNote from "/snippets/security-note.mdx";
+InteraOne provides two installation methods. Both deploy the same Docker Compose stack—the only difference is how the environment is configured.
 
-Use a supported 64-bit Linux host with Docker Engine, the Compose plugin, Git, DNS control, and enough memory/disk for five applications plus MongoDB, Redis, Qdrant, and MinIO.
+---
 
-<Steps>
-  <Step title="Provision and secure the host">
-    Create a non-root administrative user, use SSH keys, apply OS updates, enable a firewall, and allow inbound `80`/`443`. Restrict SSH to trusted sources when possible.
-  </Step>
-  <Step title="Clone a reviewed release">
-    ```bash
-    git clone https://github.com/InteraOne/InteraOne.git
-    cd InteraOne
-    git checkout RELEASE_TAG
-    ```
+# Option 1 — One-Click Installation (Recommended)
 
-    Prefer a release tag or commit SHA over a moving branch.
-  </Step>
-  <Step title="Create production configuration">
-    ```bash
-    cp docker/.env.example docker/.env
-    ```
+The easiest way to deploy InteraOne is with the automated installer.
 
-    Fill every credential, hostname, public URL, provider key, and shared secret. Review [environment variables](/self-hosting/environment-variables).
-  </Step>
-  <Step title="Create DNS records">
-    Point the API, web, CDN, and log hostnames to the server. Restrict the log hostname through identity-aware access, VPN, or trusted IPs.
-  </Step>
-  <Step title="Validate and start">
-    ```bash
-    docker compose --env-file docker/.env -f docker/docker-compose.yml config
-    docker compose --env-file docker/.env -f docker/docker-compose.yml pull
-    docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
-    ```
-  </Step>
-  <Step title="Verify">
-    ```bash
-    docker compose --env-file docker/.env -f docker/docker-compose.yml ps
-    curl https://YOUR_API_HOST/api/v1/health
-    ```
+## 1. Prepare your server
 
-    Open the web host, create the first account/organization, configure a model provider, add a small knowledge source, and test a widget conversation.
-  </Step>
-</Steps>
+Before running the installer:
 
-<SecurityNote />
+- Provision a Linux server (Ubuntu, Debian, or Amazon Linux 2023)
+- Point the following DNS records to your server's public IP:
+  - `api.example.com`
+  - `app.example.com`
+  - `cdn.example.com`
+  - `logs.example.com`
+- Open the following ports in your firewall/security group:
+  - TCP 80
+  - TCP 443
+  - UDP 443 (optional for HTTP/3)
 
-<Note>
-  Size recommendations depend heavily on concurrent conversations, model hosting, crawl volume, and knowledge size. Start with observed load testing rather than a universal VM size.
-</Note>
+---
+
+## 2. Clone the repository
+
+```bash
+git clone https://github.com/InteraOne/InteraOne.git
+cd InteraOne
+```
+
+---
+
+## 3. Run the installer
+
+```bash
+sudo ./install.sh
+```
+
+The installer automatically:
+
+- Installs Docker (if required)
+- Installs Docker Compose (if required)
+- Generates secure passwords and secrets
+- Creates `docker/.env`
+- Creates all required `*.env.docker` files
+- Configures every InteraOne service
+- Pulls all Docker images
+- Starts the complete production stack
+
+---
+
+## 4. Installer Configuration
+
+During installation you'll be prompted for the following information.
+
+### Domains
+
+- API Domain
+- Web Console Domain
+- CDN Domain
+- Log Viewer Domain
+
+### Email Provider
+
+Choose one:
+
+- Amazon SES
+- MailHog
+- Disabled
+
+### AI Provider
+
+Choose one:
+
+- Google Gemini
+- OpenAI
+- AWS Bedrock
+- Hugging Face
+- Ollama
+
+Depending on your provider, you'll also provide:
+
+- API Keys
+- Model names
+- Embedding model
+- AWS credentials (if applicable)
+
+The installer automatically generates all remaining secrets including:
+
+- MongoDB password
+- Redis password
+- MinIO password
+- JWT secret
+- Internal service secrets
+- Dozzle authentication
+
+---
+
+## 5. Amazon SES (Optional)
+
+If you select **Amazon SES**, configure:
+
+- Verified sender identity
+- AWS IAM credentials
+- SNS Topic
+- SES Event Notifications (Bounce, Complaint, Delivery)
+
+This allows InteraOne to properly process email events.
+
+---
+
+# Option 2 — Manual Installation
+
+For users who want complete control over the deployment.
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/InteraOne/InteraOne.git
+cd InteraOne
+```
+
+---
+
+## 2. Configure Docker environment
+
+Create and update:
+
+```text
+docker/.env
+```
+
+Configure:
+
+- Domains
+- Database passwords
+- Redis password
+- MinIO credentials
+- JWT secrets
+- AI tool secret
+
+---
+
+## 3. Configure service environments
+
+Update every required `.env.docker` file.
+
+For example:
+
+- `apps/gateway/.env.docker`
+- `apps/agent/.env.docker`
+- `apps/console/.env.docker`
+- `apps/worker/.env.docker`
+- `apps/launcher/.env.docker`
+
+Configure:
+
+- AI provider
+- API keys
+- Database connections
+- Redis
+- Object storage
+- Vector database
+- Email provider
+- Public URLs
+
+---
+
+## 4. Configure DNS
+
+Point the following domains to your server.
+
+- API
+- Web Console
+- CDN
+- Log Viewer
+
+Open ports:
+
+- TCP 80
+- TCP 443
+
+---
+
+## 5. Pull Docker images
+
+From the `docker/` directory:
+
+```bash
+docker compose pull
+```
+
+---
+
+## 6. Start the platform
+
+```bash
+docker compose up -d
+```
+
+---
+
+## Verify Installation
+
+Check the running containers.
+
+```bash
+docker compose ps
+```
+
+Verify the Gateway.
+
+```bash
+curl https://YOUR_API_HOST/api/v1/health
+```
+
+Expected response:
+
+```json
+{
+  "success": true,
+  "message": "API is healthy",
+  "timestamp": "2026-07-18T05:21:32.499Z"
+}
+```
+
+Once the health check succeeds, open the Web Console, create your first organization, configure your AI provider, and start using InteraOne.

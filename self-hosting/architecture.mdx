@@ -1,49 +1,119 @@
 ---
 title: "Deployment architecture"
 sidebarTitle: "Architecture"
-description: "Plan the InteraOne production topology, network boundaries, domains, persistent state, and service dependencies."
+description: "Understand the InteraOne deployment topology, network boundaries, storage, and service architecture."
 icon: "network"
 ---
 
-The production Compose file is a single-host reference deployment. Caddy is the only intended public entry point; application and data services communicate on a private Docker network.
+InteraOne is built on a **modular microservices architecture** where every core component is independently deployable and loosely coupled through queues, events, and well-defined APIs.
+
+For simplicity, the open-source edition ships as a **single-host Docker Compose deployment**, allowing you to run the entire platform with one command. As your workload grows, the same services can be deployed independently across multiple machines or Kubernetes without changing the application architecture.
 
 ```mermaid
 flowchart TB
-  Internet --> Caddy[Caddy :80/:443]
-  Caddy --> Web[Console :3000]
-  Caddy --> API[Gateway :3002 + Socket.IO]
-  Caddy --> CDN[MinIO asset route]
-  Caddy --> Logs[Dozzle :8080]
-  API --> Mongo[(MongoDB volume)]
-  API --> Redis[(Redis volume)]
-  API --> MinIO[(MinIO volume)]
-  API --> Agent[Agent]
-  Redis <--> Agent
-  Agent --> Qdrant[(Qdrant volume)]
-  Redis <--> Worker[Worker]
-  Worker --> Mongo
-  Launcher[One-shot launcher deploy] --> MinIO
+    Internet --> Caddy[Caddy :80/:443]
+
+    Caddy --> Web[Console :3000]
+    Caddy --> API[Gateway :3002 + Socket.IO]
+    Caddy --> CDN[MinIO Assets]
+    Caddy --> Logs[Dozzle :8080]
+
+    API --> Mongo[(MongoDB)]
+    API --> Redis[(Redis)]
+    API --> MinIO[(MinIO)]
+
+    API --> Agent[AI Agent]
+
+    Redis <--> Agent
+
+    Agent --> Qdrant[(Qdrant)]
+
+    Redis <--> Worker[Background Worker]
+
+    Worker --> Mongo
+
+    Launcher[Widget Builder] --> MinIO
 ```
 
-## Required hosts
+## Deployment Models
 
-| Variable | Routes |
+InteraOne supports multiple deployment strategies using the same codebase.
+
+### Monolithic Deployment
+
+Ideal for:
+
+- Development
+- Small teams
+- Self-hosted installations
+- Single-server deployments
+
+All services run together through Docker Compose while remaining logically separated.
+
+### Microservices Deployment
+
+Ideal for:
+
+- Production
+- High availability
+- Large organizations
+- Horizontal scaling
+
+Each service can be deployed independently and scaled according to its workload.
+
+For example:
+
+- Multiple Gateway instances
+- Dedicated AI Agent clusters
+- Separate Worker pools
+- Managed MongoDB
+- Managed Redis
+- External object storage
+- External vector database
+
+Because services communicate through Redis, queues, and APIs, scaling one service does not require scaling the others.
+
+## Required Hosts
+
+| Variable | Purpose |
 | --- | --- |
-| `API_HOST` | REST API and Socket.IO |
-| `WEB_HOST` | Console SPA; can equal `API_HOST` for path-based single-domain routing |
-| `CDN_HOST` | Widget and public object assets |
-| `LOG_HOST` | Dozzle log UI; restrict more heavily than the public app |
+| `API_HOST` | Gateway REST API and Socket.IO |
+| `WEB_HOST` | Console application |
+| `CDN_HOST` | Widget assets and public objects |
+| `LOG_HOST` | Dozzle log viewer |
 
-Caddy automatically obtains TLS certificates for real domain names. With a plain IP it serves HTTP. Create DNS records before startup so certificate validation can succeed.
+When using real domain names, Caddy automatically provisions TLS certificates through Let's Encrypt.
 
-## Persistent state
+## Persistent Storage
 
-The Compose stack declares volumes for MongoDB, Redis, MinIO, Qdrant, and Caddy. Back up all data stores on a coordinated schedule. MongoDB contains source metadata while MinIO contains file bytes and Qdrant contains derived vectors; losing only one produces incomplete state.
+InteraOne persists data across multiple services.
 
-## Scaling boundary
+| Service | Stores |
+| --- | --- |
+| MongoDB | Application data and metadata |
+| Redis | Cache, queues, pub/sub, sessions |
+| MinIO | Uploaded files and widget assets |
+| Qdrant | AI embedding vectors |
 
-The provided stack favors operational simplicity. For larger installations, externalize stateful services first, then scale gateway, agent, and worker separately based on request, AI, and queue load. Ensure Socket.IO coordination and every replica share Redis and signing secrets.
+All persistent storage should be included in your backup strategy.
+
+## Scaling
+
+As traffic grows, externalize stateful services first:
+
+- MongoDB
+- Redis
+- MinIO
+- Qdrant
+
+Then scale stateless services independently:
+
+- Gateway
+- AI Agent
+- Worker
+
+Every Gateway instance should share the same Redis instance and signing secrets to support Socket.IO communication and distributed processing.
 
 <Warning>
-  The production Compose file binds database and application ports to loopback where host access is useful. Keep cloud firewalls closed for those ports; loopback binding is defense in depth, not a replacement for network policy.
+  The reference Docker Compose deployment binds most internal services to the local host for additional protection. This should complement—not replace—proper firewall rules, private networking, and infrastructure security.
 </Warning>
