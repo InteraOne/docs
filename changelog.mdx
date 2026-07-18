@@ -4,55 +4,101 @@ description: "Notable InteraOne product, platform, AI, channel, and documentatio
 icon: "history"
 ---
 
-This page summarizes user- and operator-visible changes. Git tags and the repository history remain the authoritative source for exact commits.
+## v1.0.0-beta.27
 
-<Update label="July 15, 2026" description="Unreleased">
-  ### Support operations and channels
+_Unreleased_
 
-  - Expanded dashboard, channel, and contact workflows.
-  - Added direct ticket-to-customer replies across channel strategies.
-  - Synchronized ticket status with conversations and improved lifecycle notifications.
-  - Excluded resolved and closed conversations from agent assignment queries.
+### ✨ Added
 
-  ### AI and knowledge
+- Advanced template personalization with automatic placeholder replacements.
+- Loading states for conversation actions to improve user feedback.
+- AI assistant automatically disables when a subscription expires or usage quota is exhausted.
+- Usage notifications for:
+  - Free credit grants
+  - Subscription activations
+  - Usage threshold warnings
+  - Credit exhaustion
+- Conversation Gatekeeper now includes channel metadata in lookups.
+- Dashboard analytics now display total message counts instead of token metrics.
 
-  - Centralized the internal AI API service and URL-ingestion locking.
-  - Added a 25-page ingestion limit and clearer worker naming.
-  - Modularized system prompt construction and shared agent utilities.
+### 🚀 Improved
 
-  ### Platform
+- Provider registry now prioritizes Hugging Face models for improved inference routing.
+- Added an intelligent embedding fallback router for higher availability.
+- Billing interface simplified with a cleaner design and standardized primary color theming.
+- Added plan feature comparison support.
+- Conversation cards now use theme-compliant design tokens.
+- Preserved label casing across the Plans page.
+- Improved template picker consistency and maintainability.
 
-  - Refactored Socket.IO into dedicated handlers, consumers, and services.
-  - Added DNS-based MX verification for the SES channel.
-  - Improved widget quick suggestions, welcome behavior, and conversation synchronization.
-</Update>
+### 🔧 Internal
 
-<Update label="July 7, 2026" description="v1.0.0-beta.21">
-  - Added conversation status badges, relative timestamps, channel icons, and bulk contact tagging.
-  - Added an outcome overlay for resolved and closed conversations.
-  - Improved onboarding domain verification and context-aware dashboard breadcrumbs.
-  - Added agent analytics and an inbox notification badge for new conversations.
-  - Refined ticket/contact UI, loaders, widget startup, and platform email templates.
-</Update>
+- Refactored AI provider registry architecture.
+- Improved embedding routing infrastructure.
+- Multiple internal code quality improvements and UI refinements.
 
-<Update label="July 5, 2026" description="v1.0.0-beta.20">
-  - Improved widget streaming state and model tool-call limits.
-  - Added sliding-window conversation context with message IDs.
-  - Introduced the email provider adapter layer, ticket detail, and contact conflict management.
-  - Standardized domain types and refactored core conversation, routing, authentication, and analytics code.
-  - Added AI and API ticket sources and corrected console chart typing.
-</Update>
+---
 
-<Update label="July 2, 2026" description="v1.0.0-beta.19">
-  - Consolidated operational event models into `SystemEvent`.
-  - Added structured logging and Dozzle-based container log viewing.
-  - Continued billing, dashboard, and infrastructure maintenance for the beta line.
-</Update>
+## v1.0.0-beta.24
 
-## Release policy
+_Released_
 
-Beta tags can include breaking changes to environment variables, queue payloads, storage, or public API behavior. Before upgrading, read [updates and upgrades](/self-hosting/updating-and-upgrading), pin every application image to the same reviewed release, and test with representative data.
+### ✨ Added
 
-<Info>
-  When submitting a user-visible change, update this page, the affected guide, `.env.example` files, and `openapi.json` in the same pull request.
-</Info>
+- Redesigned conversation experience with a cleaner and more focused interface.
+- Dashboard notification observers for real-time updates.
+- Automatic ticket assignee synchronization with conversations.
+- Analytics query optimizations for faster dashboard performance.
+
+### 🚀 Improved
+
+- Conversations and tickets are now decoupled, enabling independent workflows.
+- Session identification now uses contact email and phone matching instead of visitor IDs, allowing unified conversation history across devices.
+- Removed the contact update dialog to streamline conversation management.
+
+### 🧹 Refactored
+
+- Removed cross-module synchronization between conversations and tickets.
+- Removed unused avatar color generation logic.
+- Improved overall conversation architecture for future extensibility.
+
+---
+
+## v1.0.0-beta.23
+
+### ✨ Added
+
+- Enhanced Support Dashboard experience.
+- Improved channel management workflows.
+- Better contact management capabilities.
+
+### 🚀 Improved
+
+- Dashboard usability and operational workflows.
+- Channel configuration and management experience.
+
+---
+
+## v1.0.0-beta.22
+
+### ✨ Added
+
+- 25-page ingestion limit for document processing.
+- Standardized internal API service architecture.
+
+### 🚀 Improved
+
+- URL locking mechanism redesigned for better reliability.
+- Modular system prompt generation.
+- Shared utilities consolidated into a centralized architecture.
+
+### 🧹 Refactored
+
+- Improved maintainability through utility consolidation.
+- Simplified internal AI prompt generation pipeline.
+
+---
+
+## Previous Releases
+
+For older releases and complete commit history, visit the GitHub repository.
